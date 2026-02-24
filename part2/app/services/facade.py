@@ -1,5 +1,6 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
+from app.models.amenity import Amenity
 
 
 class HBnBFacade:
@@ -21,5 +22,12 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
 
-# ====== GLOBAL INSTANCE ======
-facade = HBnBFacade()
+    def get_all_users(self):
+        return self.user_repo.get_all()
+
+    def update_user(self, user_id, user_data):
+        user = self.get_user(user_id)
+        if not user:
+            return None
+        user.update(user_data)
+        return user
