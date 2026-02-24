@@ -54,3 +54,18 @@ class Place(BaseModel):
         if amenity not in self.amenities:
             self.amenities.append(amenity)
             self.save()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "price": self.price,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "owner": self.owner.to_dict(),
+            "amenities": [a.to_dict() for a in self.amenities],
+            "reviews": [r.to_dict() for r in self.reviews],
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat()
+        }
