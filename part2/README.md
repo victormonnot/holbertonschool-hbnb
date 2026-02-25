@@ -44,28 +44,33 @@ hbnb/
 │   ├── __init__.py
 │   ├── api/
 │   │   ├── __init__.py
-│   │   ├── v1/
+│   │   └── v1/
 │   │       ├── __init__.py
 │   │       ├── users.py
 │   │       ├── places.py
 │   │       ├── reviews.py
-│   │       ├── amenities.py
+│   │       └── amenities.py
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── user.py
 │   │   ├── place.py
 │   │   ├── review.py
-│   │   ├── amenity.py
+│   │   └── amenity.py
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── facade.py
+│   │   └── facade.py
 │   ├── persistence/
-│       ├── __init__.py
-│       ├── repository.py
+│   │   ├── __init__.py
+│   │   └── repository.py
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── à compléter
+│   │   ├── à compléter bis
+│   │   └── à compléter bis bis
 ├── run.py
 ├── config.py
 ├── requirements.txt
-├── README.md
+└── README.md
 ```
 
 Explain briefly the role of key files if needed.
