@@ -214,7 +214,7 @@ curl -X PUT http://127.0.0.1:5000/api/v1/users/<user_id> \
 {
   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "first_name": "John",
-  "last_name": "Wtason",
+  "last_name": "Watson",
   "email": "john.watson@bestie.com"
 }
 ```
@@ -279,8 +279,8 @@ curl -X POST http://127.0.0.1:5000/api/v1/places/ \
     "title": "Cozy Apartment",
     "description": "A lovely place in the city center",
     "price": 120.0,
-    "latitude": 51.5238,
-    "longitude": -0.158524,
+    "latitude": 51.523767,
+    "longitude": -0.158555,
     "owner_id": "<user_id>"
   }'
 ```
@@ -293,8 +293,8 @@ curl -X POST http://127.0.0.1:5000/api/v1/places/ \
   "title": "Cozy Apartment",
   "description": "A lovely place in the city center",
   "price": 120.0,
-  "latitude": 51.5238,
-  "longitude": -0.158524,
+  "latitude": 51.523767,
+  "longitude": -0.158555,
   "owner": {
     "id": "<user_id>",
     "first_name": "Sherlock",
