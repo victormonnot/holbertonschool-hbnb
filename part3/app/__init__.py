@@ -3,6 +3,7 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # --- Extensions instantiated at module level ---
 # Created here so they can be imported anywhere:
@@ -20,6 +21,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     """
     app = Flask(__name__)
     app.config.from_object(config_class)
+    CORS(app)
 
     # Initialize extensions with the app
     bcrypt.init_app(app)
