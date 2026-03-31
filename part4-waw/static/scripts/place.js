@@ -45,7 +45,13 @@ function renderHero(place) {
 
   document.getElementById('place-hero').innerHTML = `
     <div class="place-detail__hero">
-      <div class="place-detail__hero-gradient" style="background: ${gradient};">
+      <img
+        class="place-detail__hero-img"
+        src="${getPlaceImage(place.id)}"
+        alt="${escapeHTML(place.title)}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
+      >
+      <div class="place-detail__hero-gradient" style="background: ${gradient}; display:none;">
       </div>
       <div class="place-detail__hero-overlay"></div>
       <div class="place-detail__hero-content">

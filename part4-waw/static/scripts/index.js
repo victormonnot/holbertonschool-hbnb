@@ -59,11 +59,13 @@ function createPlaceCard(place, index) {
   return `
     <article class="place-card reveal ${delayClass}" onclick="window.location.href='place.html?id=${place.id}'">
       <div class="place-card__image">
-        <div class="place-card__gradient" style="background: ${gradient};">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
+        <img
+          class="place-card__img"
+          src="${getPlaceImage(place.id)}"
+          alt="${escapeHTML(place.title)}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+        >
+        <div class="place-card__gradient" style="background: ${gradient}; display:none;">
         </div>
         <div class="place-card__price">$${place.price}<span>/night</span></div>
       </div>

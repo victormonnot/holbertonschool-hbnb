@@ -64,7 +64,18 @@ function initNavScroll() {
   onScroll();
 }
 
-/* ---------- Place Card Gradient Generator ---------- */
+/* ---------- Place Image / Gradient ---------- */
+const PLACE_IMAGE_COUNT = 10; // number of images in static/images/places/
+
+function getPlaceImage(id) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
+  }
+  const index = (Math.abs(hash) % PLACE_IMAGE_COUNT) + 1;
+  return `static/images/places/${index}.jpg`;
+}
+
 const GRADIENTS = [
   'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
   'linear-gradient(135deg, #2d1b3d 0%, #1a1a2e 50%, #162447 100%)',

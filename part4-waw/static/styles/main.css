@@ -498,6 +498,17 @@ h1, h2, h3 {
   overflow: hidden;
 }
 
+.place-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease-out);
+}
+
+.place-card:hover .place-card__img {
+  transform: scale(1.05);
+}
+
 .place-card__gradient {
   width: 100%;
   height: 100%;
@@ -719,6 +730,14 @@ h1, h2, h3 {
   border-radius: var(--radius-xl);
   overflow: hidden;
   margin-bottom: 48px;
+}
+
+.place-detail__hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
 }
 
 .place-detail__hero-gradient {
