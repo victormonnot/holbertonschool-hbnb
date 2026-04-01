@@ -1,4 +1,8 @@
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
+import { MapPin, Star, ArrowRight } from "lucide-react"
+import { getPlaces, getPlaceReviews, type Place } from "../lib/api"
 
 const fadeUp = (delay: number) => ({
   initial: { opacity: 0, y: 20 },
@@ -7,99 +11,133 @@ const fadeUp = (delay: number) => ({
   transition: { duration: 0.6, delay, ease: "easeOut" },
 })
 
-function MarsIcon() {
-  return (
-    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="100" r="80" stroke="white" strokeWidth="1.5" opacity="0.3" />
-      <circle cx="100" cy="100" r="50" stroke="white" strokeWidth="1" opacity="0.2" />
-      <circle cx="100" cy="100" r="20" fill="white" opacity="0.1" />
-      <path d="M60 100 Q80 60 100 80 Q120 100 140 70" stroke="white" strokeWidth="1.5" opacity="0.4" fill="none" />
-      <circle cx="75" cy="85" r="8" stroke="white" strokeWidth="1" opacity="0.25" />
-      <circle cx="125" cy="110" r="12" stroke="white" strokeWidth="1" opacity="0.2" />
-    </svg>
-  )
-}
-
-function StationIcon() {
-  return (
-    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="100" cy="100" rx="80" ry="30" stroke="white" strokeWidth="1.5" opacity="0.3" />
-      <ellipse cx="100" cy="100" rx="50" ry="50" stroke="white" strokeWidth="1" opacity="0.2" />
-      <rect x="85" y="70" width="30" height="60" rx="8" stroke="white" strokeWidth="1.5" opacity="0.4" />
-      <line x1="60" y1="100" x2="85" y2="100" stroke="white" strokeWidth="1" opacity="0.3" />
-      <line x1="115" y1="100" x2="140" y2="100" stroke="white" strokeWidth="1" opacity="0.3" />
-      <rect x="45" y="90" width="15" height="20" rx="3" stroke="white" strokeWidth="1" opacity="0.25" />
-      <rect x="140" y="90" width="15" height="20" rx="3" stroke="white" strokeWidth="1" opacity="0.25" />
-    </svg>
-  )
-}
-
-function MoonIcon() {
-  return (
-    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="100" r="70" stroke="white" strokeWidth="1.5" opacity="0.3" />
-      <circle cx="85" cy="80" r="15" stroke="white" strokeWidth="1" opacity="0.15" />
-      <circle cx="120" cy="110" r="20" stroke="white" strokeWidth="1" opacity="0.15" />
-      <circle cx="90" cy="120" r="10" stroke="white" strokeWidth="1" opacity="0.1" />
-      <circle cx="110" cy="75" r="6" fill="white" opacity="0.05" />
-      <path d="M130 50 Q160 100 130 150" stroke="white" strokeWidth="1" opacity="0.2" strokeDasharray="4 4" />
-    </svg>
-  )
-}
-
-const destinations = [
-  {
-    Icon: MarsIcon,
-    name: "Mars Colony",
-    desc: "Des habitats pressuris\u00e9s avec vue sur Olympus Mons. Le luxe martien, sans compromis.",
-  },
-  {
-    Icon: StationIcon,
-    name: "Station Orbitale",
-    desc: "S\u00e9journez en apesanteur avec panorama terrestre \u00e0 360\u00b0. L\u2019h\u00f4tel qui tourne autour du monde.",
-  },
-  {
-    Icon: MoonIcon,
-    name: "Base Lunaire",
-    desc: "Crat\u00e8res, silence absolu et ciel \u00e9toil\u00e9 permanent. La retraite ultime.",
-  },
-]
-
 export default function VoyageSection() {
+  const [places, setPlaces] = useState<(Place & { avgRating: number })[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getPlaces()
+        const first3 = data.slice(0, 3)
+        const withRatings = await Promise.all(
+          first3.map(async (place) => {
+            try {
+              const reviews = await getPlaceReviews(place.id)
+              const avg = reviews.length > 0
+                ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+                : 0
+              return { ...place, avgRating: avg }
+            } catch {
+              return { ...place, avgRating: 0 }
+            }
+          })
+        )
+        setPlaces(withRatings)
+      } catch {
+        setPlaces([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
   return (
-    <section className="pt-52 md:pt-64 pb-6 md:pb-9 px-6 text-center">
-      <motion.h2
-        {...fadeUp(0)}
-        className="text-5xl md:text-7xl lg:text-8xl font-medium tracking-[-2px] mb-6"
-      >
-        Le voyage a{" "}
-        <span className="font-serif italic font-normal">chang&eacute;.</span>{" "}
-        Et vous ?
-      </motion.h2>
+    <section className="pt-32 md:pt-44 pb-12 md:pb-16">
+      <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-28">
+        {/* Header */}
+        <motion.h2
+          {...fadeUp(0)}
+          className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-[-0.04em] leading-[0.95] mb-5 text-center"
+        >
+          Le voyage a{" "}
+          <span className="font-serif italic font-normal">chang&eacute;.</span>{" "}
+          Et vous ?
+        </motion.h2>
 
-      <motion.p
-        {...fadeUp(0.1)}
-        className="text-muted-foreground text-lg max-w-2xl mx-auto mb-24"
-      >
-        L&rsquo;espace n&rsquo;est plus r&eacute;serv&eacute; aux astronautes.
-        D&eacute;couvrez les nouvelles fa&ccedil;ons de voyager, habiter et vivre
-        au-del&agrave; de la Terre.
-      </motion.p>
+        <motion.p
+          {...fadeUp(0.1)}
+          className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto mb-16 md:mb-20 text-center leading-relaxed"
+        >
+          L&rsquo;espace n&rsquo;est plus r&eacute;serv&eacute; aux astronautes.
+          D&eacute;couvrez les nouvelles fa&ccedil;ons de voyager, habiter et vivre
+          au-del&agrave; de la Terre.
+        </motion.p>
 
-      {/* Destination cards */}
-      <div className="grid md:grid-cols-3 gap-12 md:gap-8 mb-20 max-w-5xl mx-auto">
-        {destinations.map((dest, i) => (
-          <motion.div key={dest.name} {...fadeUp(0.1 * (i + 1))} className="flex flex-col items-center">
-            <dest.Icon />
-            <h3 className="font-semibold text-base mb-2 mt-6">{dest.name}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs">{dest.desc}</p>
-          </motion.div>
-        ))}
+        {/* Place cards */}
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-5 h-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+          </div>
+        ) : places.length === 0 ? (
+          <motion.p {...fadeUp(0.2)} className="text-muted-foreground text-sm text-center py-16">
+            Aucune destination disponible pour le moment.
+          </motion.p>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-5 md:gap-6 mb-12">
+            {places.map((place, i) => (
+              <motion.div key={place.id} {...fadeUp(0.1 + i * 0.08)}>
+                <Link
+                  to={`/places/${place.id}`}
+                  className="block group rounded-2xl overflow-hidden bg-card border border-border/20 hover:border-border/50 transition-all duration-300"
+                >
+                  {/* Image area */}
+                  <div className="aspect-[4/3] bg-secondary/60 relative overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <MapPin className="w-10 h-10 text-muted-foreground/20" />
+                    </div>
+                    {/* Price badge */}
+                    <div className="absolute bottom-3 left-3 bg-foreground text-background text-xs font-semibold px-3 py-1.5 rounded-full">
+                      {place.price.toFixed(0)} &euro; / nuit
+                    </div>
+                    {/* Rating badge */}
+                    {place.avgRating > 0 && (
+                      <div className="absolute top-3 right-3 flex items-center gap-1 bg-background/70 backdrop-blur-sm text-xs px-2.5 py-1 rounded-full">
+                        <Star className="w-3 h-3 fill-foreground text-foreground" />
+                        {place.avgRating.toFixed(1)}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5">
+                    <h3 className="font-semibold text-[15px] mb-1.5 group-hover:text-foreground transition-colors">
+                      {place.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                      {place.description || "Aucune description"}
+                    </p>
+                    {place.amenities.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {place.amenities.slice(0, 3).map((a) => (
+                          <span
+                            key={a.id}
+                            className="text-[11px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full"
+                          >
+                            {a.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* View all link */}
+        <motion.div {...fadeUp(0.4)} className="text-center">
+          <Link
+            to="/places"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            Voir toutes les destinations
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        </motion.div>
       </div>
-
-      <motion.p {...fadeUp(0.4)} className="text-muted-foreground text-sm text-center">
-        Si vous ne r&eacute;servez pas votre place, quelqu&rsquo;un d&rsquo;autre le fera.
-      </motion.p>
     </section>
   )
 }

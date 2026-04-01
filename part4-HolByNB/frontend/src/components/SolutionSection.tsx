@@ -28,25 +28,25 @@ const features = [
 
 export default function SolutionSection() {
   return (
-    <section className="py-32 md:py-44 px-6 border-t border-border/30">
-      <div className="max-w-6xl mx-auto">
+    <section className="py-24 md:py-36 border-t border-border/20">
+      <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-28">
         <motion.p
           {...fadeUp(0)}
-          className="text-xs tracking-[3px] uppercase text-muted-foreground mb-4"
+          className="text-[11px] tracking-[3px] uppercase text-muted-foreground mb-4"
         >
           LA PLATEFORME
         </motion.p>
 
         <motion.h2
           {...fadeUp(0.1)}
-          className="text-4xl md:text-6xl font-medium tracking-[-2px] mb-12"
+          className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-[-0.04em] leading-[0.95] mb-10 md:mb-14"
         >
           L&rsquo;h&eacute;bergement spatial{" "}
           <span className="font-serif italic font-normal">r&eacute;invent&eacute;</span>
         </motion.h2>
 
         {/* Video */}
-        <motion.div {...fadeUp(0.2)} className="mb-16">
+        <motion.div {...fadeUp(0.2)} className="mb-12 md:mb-16">
           <video
             autoPlay
             loop
@@ -62,11 +62,11 @@ export default function SolutionSection() {
         </motion.div>
 
         {/* Feature grid */}
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           {features.map((feat, i) => (
-            <motion.div key={feat.title} {...fadeUp(0.1 * (i + 1))}>
-              <h3 className="font-semibold text-base mb-2">{feat.title}</h3>
-              <p className="text-muted-foreground text-sm">{feat.desc}</p>
+            <motion.div key={feat.title} {...fadeUp(0.15 + i * 0.06)}>
+              <h3 className="font-semibold text-[15px] mb-2">{feat.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{feat.desc}</p>
             </motion.div>
           ))}
         </div>

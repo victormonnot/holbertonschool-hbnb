@@ -67,7 +67,7 @@ function Word({
   return (
     <motion.span
       style={{ opacity }}
-      className={`inline-block mr-[0.3em] ${highlight ? "text-foreground" : ""}`}
+      className={`inline-block mr-[0.25em] ${highlight ? "text-foreground" : ""}`}
     >
       {word}
     </motion.span>
@@ -76,35 +76,36 @@ function Word({
 
 export default function MissionSection() {
   return (
-    <section className="pt-0 pb-32 md:pb-44 px-6">
-      {/* Video */}
-      <motion.div {...fadeUp(0)} className="flex justify-center mb-20">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full max-w-[800px] aspect-square object-cover rounded-2xl"
-        >
-          <source
-            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_132944_a0d124bb-eaa1-4082-aa30-2310efb42b4b.mp4"
-            type="video/mp4"
+    <section className="py-24 md:py-36">
+      <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-28">
+        {/* Video */}
+        <motion.div {...fadeUp(0)} className="flex justify-center mb-16 md:mb-24">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full max-w-[700px] aspect-square object-cover rounded-2xl"
+          >
+            <source
+              src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_132944_a0d124bb-eaa1-4082-aa30-2310efb42b4b.mp4"
+              type="video/mp4"
+            />
+          </video>
+        </motion.div>
+
+        {/* Word-by-word reveal */}
+        <div className="max-w-4xl mx-auto">
+          <WordReveal
+            text={paragraph1}
+            highlightWords={highlighted}
+            className="text-2xl md:text-4xl lg:text-[2.75rem] font-medium tracking-[-0.03em] leading-[1.2]"
           />
-        </video>
-      </motion.div>
-
-      {/* Word-by-word reveal */}
-      <div className="max-w-5xl mx-auto">
-        <WordReveal
-          text={paragraph1}
-          highlightWords={highlighted}
-          className="text-2xl md:text-4xl lg:text-5xl font-medium tracking-[-1px] leading-tight"
-
-        />
-        <WordReveal
-          text={paragraph2}
-          className="text-xl md:text-2xl lg:text-3xl font-medium mt-10 leading-tight"
-        />
+          <WordReveal
+            text={paragraph2}
+            className="text-xl md:text-2xl lg:text-3xl font-medium tracking-[-0.02em] leading-[1.25] mt-8"
+          />
+        </div>
       </div>
     </section>
   )

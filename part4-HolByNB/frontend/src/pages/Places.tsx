@@ -7,40 +7,38 @@ import { getPlaces, getPlaceReviews, type Place } from "../lib/api"
 const fadeUp = (delay: number) => ({
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-100px" },
-  transition: { duration: 0.6, delay, ease: "easeOut" },
+  viewport: { once: true, margin: "-50px" },
+  transition: { duration: 0.5, delay, ease: "easeOut" },
 })
 
 function PlaceCard({ place, index }: { place: Place & { avgRating?: number }; index: number }) {
   return (
-    <motion.div {...fadeUp(0.05 * index)}>
+    <motion.div {...fadeUp(0.04 * index)}>
       <Link
         to={`/places/${place.id}`}
-        className="block liquid-glass rounded-2xl overflow-hidden group"
+        className="block group rounded-2xl overflow-hidden bg-card border border-border/20 hover:border-border/50 transition-all duration-300"
       >
-        {/* Image placeholder */}
-        <div className="aspect-[4/3] bg-secondary relative overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-            <MapPin className="w-8 h-8 opacity-30" />
+        {/* Image area */}
+        <div className="aspect-[4/3] bg-secondary/60 relative overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <MapPin className="w-10 h-10 text-muted-foreground/20" />
           </div>
-          <div className="absolute bottom-3 right-3 bg-foreground text-background text-xs font-semibold px-3 py-1.5 rounded-full">
+          <div className="absolute bottom-3 left-3 bg-foreground text-background text-xs font-semibold px-3 py-1.5 rounded-full">
             {place.price.toFixed(0)} &euro; / nuit
           </div>
+          {place.avgRating !== undefined && place.avgRating > 0 && (
+            <div className="absolute top-3 right-3 flex items-center gap-1 bg-background/70 backdrop-blur-sm text-xs px-2.5 py-1 rounded-full">
+              <Star className="w-3 h-3 fill-foreground text-foreground" />
+              {place.avgRating.toFixed(1)}
+            </div>
+          )}
         </div>
 
         <div className="p-5">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-semibold text-base group-hover:text-foreground transition-colors leading-tight">
-              {place.title}
-            </h3>
-            {place.avgRating !== undefined && place.avgRating > 0 && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground shrink-0">
-                <Star className="w-3.5 h-3.5 fill-foreground text-foreground" />
-                <span>{place.avgRating.toFixed(1)}</span>
-              </div>
-            )}
-          </div>
-          <p className="text-muted-foreground text-sm line-clamp-2">
+          <h3 className="font-semibold text-[15px] mb-1.5 group-hover:text-foreground transition-colors">
+            {place.title}
+          </h3>
+          <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed">
             {place.description || "Aucune description"}
           </p>
           {place.amenities.length > 0 && (
@@ -48,13 +46,13 @@ function PlaceCard({ place, index }: { place: Place & { avgRating?: number }; in
               {place.amenities.slice(0, 3).map((a) => (
                 <span
                   key={a.id}
-                  className="text-xs bg-secondary text-secondary-foreground px-2.5 py-1 rounded-full"
+                  className="text-[11px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full"
                 >
                   {a.name}
                 </span>
               ))}
               {place.amenities.length > 3 && (
-                <span className="text-xs text-muted-foreground px-1 py-1">
+                <span className="text-[11px] text-muted-foreground px-1">
                   +{place.amenities.length - 3}
                 </span>
               )}
@@ -76,7 +74,6 @@ export default function Places() {
     async function load() {
       try {
         const data = await getPlaces()
-        // Fetch average ratings
         const withRatings = await Promise.all(
           data.map(async (place) => {
             try {
@@ -110,39 +107,41 @@ export default function Places() {
     : places
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-6 md:px-28">
-      <motion.div {...fadeUp(0)} className="mb-12">
-        <h1 className="text-4xl md:text-6xl font-medium tracking-[-2px] mb-3">
-          <span className="font-serif italic font-normal">Destinations</span>
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          {query
-            ? `R\u00e9sultats pour \u00ab ${query} \u00bb`
-            : "Tous les lieux disponibles"}
-        </p>
-      </motion.div>
-
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-6 h-6 border-2 border-foreground/30 border-t-foreground rounded-full animate-spin" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <motion.div {...fadeUp(0)} className="text-center py-20">
-          <p className="text-muted-foreground text-lg mb-4">Aucun lieu trouv&eacute;.</p>
-          <Link
-            to="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            &larr; Retour &agrave; l&rsquo;accueil
-          </Link>
+    <div className="min-h-screen pt-24 pb-20">
+      <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-28">
+        <motion.div {...fadeUp(0)} className="mb-10">
+          <h1 className="text-3xl md:text-5xl font-medium tracking-[-0.04em] mb-2">
+            <span className="font-serif italic font-normal">Destinations</span>
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {query
+              ? `R\u00e9sultats pour \u00ab\u00a0${query}\u00a0\u00bb`
+              : "Tous les lieux disponibles"}
+          </p>
         </motion.div>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((place, i) => (
-            <PlaceCard key={place.id} place={place} index={i} />
-          ))}
-        </div>
-      )}
+
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-5 h-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <motion.div {...fadeUp(0)} className="text-center py-20">
+            <p className="text-muted-foreground mb-4">Aucun lieu trouv&eacute;.</p>
+            <Link
+              to="/"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              &larr; Retour &agrave; l&rsquo;accueil
+            </Link>
+          </motion.div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((place, i) => (
+              <PlaceCard key={place.id} place={place} index={i} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

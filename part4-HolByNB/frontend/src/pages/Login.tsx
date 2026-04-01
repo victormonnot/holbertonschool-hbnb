@@ -3,12 +3,6 @@ import { motion } from "framer-motion"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
-const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay, ease: "easeOut" },
-})
-
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -32,14 +26,25 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 pt-20">
-      <motion.div {...fadeUp(0)} className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-sm"
+      >
         <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-medium tracking-[-2px] mb-3">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <div className="w-10 h-10 rounded-full border-2 border-foreground/60 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full border border-foreground/60" />
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-medium tracking-[-0.04em] mb-2">
             <span className="font-serif italic font-normal">Connexion</span>
           </h1>
           <p className="text-muted-foreground text-sm">
-            Connectez-vous pour r&eacute;server votre prochain s&eacute;jour spatial.
+            Connectez-vous pour acc&eacute;der &agrave; la plateforme.
           </p>
         </div>
 
@@ -48,48 +53,48 @@ export default function Login() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-red-400 text-sm text-center bg-red-400/10 rounded-lg py-3"
+              className="text-red-400 text-sm text-center bg-red-400/10 rounded-lg py-2.5 px-4"
             >
               {error}
             </motion.div>
           )}
 
           <div>
-            <label className="block text-sm text-muted-foreground mb-1.5">Email</label>
+            <label className="block text-[13px] text-muted-foreground mb-1.5">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-input border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-foreground/40 transition-colors placeholder:text-muted-foreground"
+              className="w-full bg-card border border-border/40 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-foreground/30 transition-colors placeholder:text-muted-foreground/60"
               placeholder="vous@exemple.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-muted-foreground mb-1.5">Mot de passe</label>
+            <label className="block text-[13px] text-muted-foreground mb-1.5">Mot de passe</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-input border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-foreground/40 transition-colors placeholder:text-muted-foreground"
-              placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+              className="w-full bg-card border border-border/40 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-foreground/30 transition-colors placeholder:text-muted-foreground/60"
+              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
             />
           </div>
 
           <motion.button
             type="submit"
             disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full bg-foreground text-background rounded-lg py-3.5 text-sm font-semibold disabled:opacity-50 mt-2"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            className="w-full bg-foreground text-background rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50 mt-1"
           >
             {loading ? "Connexion..." : "Se connecter"}
           </motion.button>
         </form>
 
-        <p className="text-center text-muted-foreground text-sm mt-8">
+        <p className="text-center text-muted-foreground text-[13px] mt-8">
           <Link to="/" className="hover:text-foreground transition-colors">
             &larr; Retour &agrave; l&rsquo;accueil
           </Link>

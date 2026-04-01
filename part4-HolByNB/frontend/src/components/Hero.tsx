@@ -25,7 +25,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
       {/* Background video */}
       <video
         autoPlay
@@ -41,13 +41,13 @@ export default function Hero() {
       </video>
 
       {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-background to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 pt-28 md:pt-32 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center w-full max-w-3xl mx-auto px-6">
         {/* Avatar row */}
-        <motion.div {...fadeUp(0)} className="flex items-center justify-center mb-8">
-          <div className="flex -space-x-2 mr-3">
+        <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-3 mb-10">
+          <div className="flex -space-x-2">
             {avatars.map((src, i) => (
               <img
                 key={i}
@@ -65,17 +65,17 @@ export default function Hero() {
         {/* Heading */}
         <motion.h1
           {...fadeUp(0.1)}
-          className="text-5xl md:text-7xl lg:text-8xl font-medium tracking-[-2px] mb-6"
+          className="text-5xl md:text-7xl lg:text-8xl font-medium tracking-[-0.04em] leading-[0.95] mb-6"
         >
           Explorez{" "}
-          <span className="font-serif italic font-normal">l&rsquo;Univers</span>{" "}
-          avec Nous
+          <span className="font-serif italic font-normal">l&rsquo;Univers</span>
+          <br className="hidden sm:block" /> avec Nous
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
           {...fadeUp(0.2)}
-          className="text-lg mb-10 max-w-2xl mx-auto"
+          className="text-base md:text-lg leading-relaxed mb-12 max-w-xl mx-auto"
           style={{ color: "var(--color-hero-subtitle)" }}
         >
           R&eacute;servez des s&eacute;jours uniques sur Mars, la Lune et au-del&agrave;.
@@ -86,20 +86,20 @@ export default function Hero() {
         <motion.form
           {...fadeUp(0.3)}
           onSubmit={handleSearch}
-          className="liquid-glass rounded-full p-2 max-w-lg mx-auto flex items-center"
+          className="liquid-glass rounded-full p-1.5 max-w-md mx-auto flex items-center gap-2"
         >
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="O&ugrave; voulez-vous aller ?"
-            className="flex-1 bg-transparent px-6 py-3 text-sm outline-none placeholder:text-muted-foreground"
+            placeholder="O\u00f9 voulez-vous aller ?"
+            className="flex-1 bg-transparent px-5 py-2.5 text-sm outline-none placeholder:text-muted-foreground min-w-0"
           />
           <motion.button
             type="submit"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            className="bg-foreground text-background rounded-full px-8 py-3 text-sm font-semibold"
+            className="bg-foreground text-background rounded-full px-6 py-2.5 text-sm font-semibold shrink-0"
           >
             EXPLORER
           </motion.button>

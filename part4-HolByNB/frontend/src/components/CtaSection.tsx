@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react"
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import Hls from "hls.js"
 
 const fadeUp = (delay: number) => ({
@@ -30,7 +31,7 @@ export default function CtaSection() {
   }, [])
 
   return (
-    <section className="relative py-32 md:py-44 px-6 border-t border-border/30 overflow-hidden">
+    <section className="relative py-24 md:py-36 border-t border-border/20 overflow-hidden">
       {/* HLS Background video */}
       <video
         ref={videoRef}
@@ -42,10 +43,10 @@ export default function CtaSection() {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-background/45 z-[1]" />
+      <div className="absolute inset-0 bg-background/50 z-[1]" />
 
       {/* Content */}
-      <div className="relative z-10 text-center max-w-2xl mx-auto">
+      <div className="relative z-10 text-center max-w-xl mx-auto px-6">
         {/* Logo icon */}
         <motion.div {...fadeUp(0)} className="flex justify-center mb-8">
           <div className="w-10 h-10 rounded-full border-2 border-foreground/60 flex items-center justify-center">
@@ -55,31 +56,35 @@ export default function CtaSection() {
 
         <motion.h2
           {...fadeUp(0.1)}
-          className="text-4xl md:text-6xl font-medium tracking-[-2px] mb-6"
+          className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-[-0.04em] leading-[0.95] mb-5"
         >
           Commencez{" "}
           <span className="font-serif italic font-normal">l&rsquo;Aventure</span>
         </motion.h2>
 
-        <motion.p {...fadeUp(0.2)} className="text-muted-foreground text-lg mb-10">
+        <motion.p {...fadeUp(0.2)} className="text-muted-foreground text-base md:text-lg mb-10 leading-relaxed">
           Votre prochaine destination est &agrave; des ann&eacute;es-lumi&egrave;re. Litt&eacute;ralement.
         </motion.p>
 
-        <motion.div {...fadeUp(0.3)} className="flex items-center justify-center gap-4 flex-wrap">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-foreground text-background rounded-lg px-8 py-3.5 font-semibold text-sm"
-          >
-            R&eacute;server Maintenant
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="liquid-glass rounded-lg px-8 py-3.5 font-semibold text-sm"
-          >
-            Devenir H&ocirc;te
-          </motion.button>
+        <motion.div {...fadeUp(0.3)} className="flex items-center justify-center gap-3 flex-wrap">
+          <Link to="/places">
+            <motion.span
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-block bg-foreground text-background rounded-lg px-7 py-3 font-semibold text-sm cursor-pointer"
+            >
+              R&eacute;server Maintenant
+            </motion.span>
+          </Link>
+          <Link to="/places/new">
+            <motion.span
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-block liquid-glass rounded-lg px-7 py-3 font-semibold text-sm cursor-pointer"
+            >
+              Devenir H&ocirc;te
+            </motion.span>
+          </Link>
         </motion.div>
       </div>
     </section>
