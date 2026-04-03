@@ -127,7 +127,15 @@ const STARS_BLUE = `
   73vw 530px 1px 1px rgba(100,140,255,0.9),
   29vw 720px 1px 1px rgba(100,140,255,0.8),
   88vw 380px 1px 1px rgba(100,140,255,0.9),
-  55vw 890px 1px 1px rgba(100,140,255,0.8)
+  55vw 890px 1px 1px rgba(100,140,255,0.8),
+  8vw 470px 1px 1px rgba(100,140,255,0.7),
+  37vw 60px 1px 1px rgba(100,140,255,0.9),
+  62vw 750px 1px 1px rgba(100,140,255,0.8),
+  83vw 200px 1px 1px rgba(100,140,255,0.7),
+  21vw 580px 1px 1px rgba(100,140,255,0.9),
+  95vw 650px 1px 1px rgba(100,140,255,0.8),
+  50vw 420px 1px 1px rgba(100,140,255,0.7),
+  3vw 830px 1px 1px rgba(100,140,255,0.9)
 `;
 
 export default function HowItWorks() {
@@ -189,6 +197,18 @@ export default function HowItWorks() {
         <div className="hiw-stars-blue" />
         {/* Noise texture */}
         <div className="hiw-noise" />
+        {/* Bottom fade — dissolves atmosphere into pure bg */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '200px',
+            background: 'linear-gradient(to bottom, transparent 0%, #040710 100%)',
+            zIndex: 2,
+          }}
+        />
       </div>
 
       {/* Content — above background */}

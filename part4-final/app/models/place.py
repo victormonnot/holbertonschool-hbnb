@@ -25,6 +25,7 @@ class Place(BaseModel):
     price = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)
 
     # FK to the users table (the owner)
     owner_id = db.Column(db.String(36), db.ForeignKey('users.id'),
@@ -40,7 +41,7 @@ class Place(BaseModel):
                                 backref=db.backref('places', lazy=True))
 
     def __init__(self, title, price, latitude, longitude, owner_id,
-                 description=None, **kwargs):
+                 description=None, image_url=None, **kwargs):
         """
         Initialize a new place instance
         """
@@ -51,6 +52,7 @@ class Place(BaseModel):
         self.latitude = self._validate_latitude(latitude)
         self.longitude = self._validate_longitude(longitude)
         self.owner_id = owner_id
+        self.image_url = image_url
 
     def _validate_title(self, title):
         """
@@ -109,6 +111,7 @@ class Place(BaseModel):
             "latitude": self.latitude,
             "longitude": self.longitude,
             "owner_id": self.owner_id,
+            "image_url": self.image_url,
             "amenities": [{"id": a.id, "name": a.name}
                           for a in self.amenities],
             "created_at": self.created_at.isoformat(),

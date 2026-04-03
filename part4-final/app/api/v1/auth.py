@@ -10,6 +10,13 @@ login_model = api.model('Login', {
     'password': fields.String(required=True, description='User password')
 })
 
+register_model = api.model('Register', {
+    'first_name': fields.String(required=True, description='First name'),
+    'last_name': fields.String(required=True, description='Last name'),
+    'email': fields.String(required=True, description='User email'),
+    'password': fields.String(required=True, description='User password')
+})
+
 
 @api.route('/login')
 class Login(Resource):
@@ -41,6 +48,38 @@ class Login(Resource):
 
         # Step 4: Return the JWT token to the client
         return {'access_token': access_token}, 200
+
+
+@api.route('/register')
+class Register(Resource):
+    @api.expect(register_model)
+    def post(self):
+        """
+        Public registration endpoint.
+        Creates a new user and returns a JWT token.
+        """
+        data = api.payload
+
+        # Check if email already exists
+        existing = facade.get_user_by_email(data.get('email', ''))
+        if existing:
+            return {'error': 'Email already registered'}, 400
+
+        try:
+            user = facade.create_user(data)
+        except ValueError as e:
+            return {'error': str(e)}, 400
+
+        # Auto-login: return JWT
+        access_token = create_access_token(
+            identity=str(user.id),
+            additional_claims={"is_admin": user.is_admin}
+        )
+
+        return {
+            'access_token': access_token,
+            'user': user.to_dict()
+        }, 201
 
 
 @api.route('/protected')

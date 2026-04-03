@@ -33,6 +33,7 @@ place_model = api.model("Place", {
     "price": fields.Float(required=True),
     "latitude": fields.Float(required=True),
     "longitude": fields.Float(required=True),
+    "image_url": fields.String,
     "amenities": fields.List(fields.String)
 })
 

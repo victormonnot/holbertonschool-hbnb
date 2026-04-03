@@ -62,7 +62,8 @@ class HBnBFacade:
             price=data["price"],
             latitude=data["latitude"],
             longitude=data["longitude"],
-            owner_id=data["owner_id"]
+            owner_id=data["owner_id"],
+            image_url=data.get("image_url")
         )
 
         # Ajouter les amenities si fournies
