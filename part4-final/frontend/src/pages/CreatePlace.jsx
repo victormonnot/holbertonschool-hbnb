@@ -1,7 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft, Check, Orbit, Eye, Wind, Wifi, Sparkles, ChefHat,
+} from 'lucide-react';
+
+const AMENITY_ICONS = {
+  'gravité artificielle': Orbit,
+  'vue panoramique': Eye,
+  'oxygène premium': Wind,
+  'wi-fi quantique': Wifi,
+  'spa zéro-g': Sparkles,
+  'cuisine moléculaire': ChefHat,
+};
+
+const getAmenityIcon = (name) => {
+  const Icon = AMENITY_ICONS[name.toLowerCase()] || Check;
+  return Icon;
+};
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
@@ -38,7 +54,7 @@ export default function CreatePlace() {
       .then((data) => {
         if (Array.isArray(data)) setAmenities(data);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [user, navigate]);
 
   const toggleAmenity = (id) => {
@@ -275,6 +291,7 @@ export default function CreatePlace() {
                         color: selected ? '#fff' : 'rgba(255,255,255,0.5)',
                       }}
                     >
+                      {(() => { const Icon = getAmenityIcon(a.name); return <Icon size={14} style={{ marginRight: '0.375rem', opacity: 0.8 }} />; })()}
                       {a.name}
                     </button>
                   );

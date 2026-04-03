@@ -24,28 +24,28 @@ const STATIC_COLS = [
   {
     title: 'Voyageurs',
     links: [
-      { label: 'Comment \u00e7a marche' },
-      { label: 'S\u00e9jours populaires' },
-      { label: 'FAQ' },
-      { label: 'Support voyageurs' },
+      { label: 'Comment \u00e7a marche', to: '/info/comment-ca-marche' },
+      { label: 'S\u00e9jours populaires', to: '/info/sejours-populaires' },
+      { label: 'FAQ', to: '/info/faq' },
+      { label: 'Support voyageurs', to: '/info/support-voyageurs' },
     ],
   },
   {
     title: 'H\u00f4tes',
     links: [
-      { label: 'Devenir h\u00f4te' },
-      { label: 'Ressources' },
-      { label: 'Tableau de bord' },
-      { label: 'Communaut\u00e9' },
+      { label: 'Devenir h\u00f4te', to: '/info/devenir-hote' },
+      { label: 'Ressources', to: '/info/ressources' },
+      { label: 'Tableau de bord', to: '/info/tableau-de-bord' },
+      { label: 'Communaut\u00e9', to: '/info/communaute' },
     ],
   },
   {
     title: 'HolByNB',
     links: [
-      { label: '\u00c0 propos' },
-      { label: 'Carri\u00e8res' },
-      { label: 'Presse' },
-      { label: 'Contact' },
+      { label: '\u00c0 propos', to: '/info/a-propos' },
+      { label: 'Carri\u00e8res', to: '/info/carrieres' },
+      { label: 'Presse', to: '/info/presse' },
+      { label: 'Contact', to: '/info/contact' },
     ],
   },
 ];
@@ -69,7 +69,7 @@ export default function Footer() {
           }).concat([{ label: 'Toutes les destinations', to: '/places' }])
         );
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const linkCols = [

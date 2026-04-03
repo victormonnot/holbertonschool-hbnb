@@ -6,7 +6,13 @@ import HowItWorks from '../components/HowItWorks';
 import PopularStays from '../components/PopularStays';
 import Footer from '../components/Footer';
 
-const PARTNERS = ['Airbus', 'Holberton', 'HugoVps', 'SosoCorp', 'SpaceX'];
+const PARTNERS = [
+  { name: 'Airbus', url: 'https://www.airbus.com' },
+  { name: 'Holberton', url: 'https://www.holbertonschool.fr' },
+  { name: 'HugoVps', url: 'https://www.hugochilemme.com' },
+  { name: 'SosoCorp', url: 'https://www.linkedin.com/in/sofian-messaoui-817166386' },
+  { name: 'SpaceX', url: 'https://www.spacex.com' },
+];
 
 export default function Home() {
   return (
@@ -274,19 +280,25 @@ export default function Home() {
                 justifyContent: 'center',
               }}
             >
-              {PARTNERS.map((name) => (
-                <span
-                  key={name}
+              {PARTNERS.map((partner) => (
+                <a
+                  key={partner.name}
+                  href={partner.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     fontFamily: 'var(--font-accent)',
                     fontStyle: 'italic',
                     letterSpacing: '-0.02em',
                     color: '#fff',
+                    textDecoration: 'none',
+                    display: 'inline-block',
+                    transition: 'transform 0.3s ease, opacity 0.3s ease',
                   }}
                   className="partner-name"
                 >
-                  {name}
-                </span>
+                  {partner.name}
+                </a>
               ))}
             </div>
           </motion.footer>
@@ -321,7 +333,8 @@ export default function Home() {
           @media (min-width: 640px) {
             .hero-cta { flex-direction: row; }
           }
-          .partner-name { font-size: 1.5rem; }
+          .partner-name { font-size: 1.5rem; cursor: pointer; }
+          .partner-name:hover { transform: scale(1.05); opacity: 0.8; }
           @media (min-width: 768px) {
             .partner-name { font-size: 1.875rem; }
           }

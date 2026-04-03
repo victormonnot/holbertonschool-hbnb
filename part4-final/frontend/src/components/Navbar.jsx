@@ -2,11 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const NAV_LINKS = [
-  { label: 'Accueil', to: '/' },
+  { label: 'Accueil', to: '/', className: 'nav-accueil' },
   { label: 'Destinations', to: '/places' },
-  { label: 'Expériences', to: '#' },
-  { label: 'Hôtes', to: '#' },
-  { label: 'Contact', to: '#' },
 ];
 
 export default function Navbar() {
@@ -52,6 +49,7 @@ export default function Navbar() {
             <Link
               key={link.label}
               to={link.to}
+              className={link.className || ''}
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.875rem',
@@ -89,7 +87,7 @@ export default function Navbar() {
                   (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')
                 }
               >
-                + Proposer
+                Proposer
               </Link>
               <span
                 style={{
@@ -150,22 +148,29 @@ export default function Navbar() {
       </nav>
 
       <style>{`
-        .nav-links {
+        .nav-accueil {
           display: none;
-          gap: 2rem;
+        }
+        @media (min-width: 768px) {
+          .nav-accueil {
+            display: inline;
+          }
+        }
+        .nav-links {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
         }
         @media (min-width: 768px) {
           .nav-links {
-            display: flex;
+            gap: 2rem;
           }
         }
-        .nav-user-name,
-        .nav-add-place {
+        .nav-user-name {
           display: none;
         }
         @media (min-width: 768px) {
-          .nav-user-name,
-          .nav-add-place {
+          .nav-user-name {
             display: inline;
           }
         }

@@ -130,10 +130,10 @@ export default function PopularStays() {
                 setReviews((prev) => ({ ...prev, [place.id]: revs }));
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const getrating = (placeId) => {
@@ -183,15 +183,7 @@ export default function PopularStays() {
               'radial-gradient(ellipse 90% 70% at 20% 25%, rgba(30,70,160,0.22) 0%, transparent 60%)',
           }}
         />
-        {/* Secondary glow — green, bottom-right */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(ellipse 80% 60% at 80% 75%, rgba(30,160,80,0.16) 0%, transparent 55%)',
-          }}
-        />
+
         {/* Tertiary — blue-green blend, center */}
         <div
           style={{
@@ -298,166 +290,166 @@ export default function PopularStays() {
                   minHeight: isLarge ? '460px' : '220px',
                 }}
               >
-              <Link
-                to={`/places/${place.id}`}
-                style={{
-                  display: 'block',
-                  position: 'absolute',
-                  inset: 0,
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  zIndex: 25,
-                }}
-              >
-                {/* Background */}
-                <div
-                  className="ps-card-bg"
+                <Link
+                  to={`/places/${place.id}`}
                   style={{
-                    background: place.image_url
-                      ? `url(${place.image_url}) center/cover no-repeat`
-                      : CARD_GRADIENTS[i] || CARD_GRADIENTS[0],
-                  }}
-                />
-
-                {/* Bottom gradient overlay */}
-                <div
-                  style={{
+                    display: 'block',
                     position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: '66%',
-                    background:
-                      'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, transparent 100%)',
-                    zIndex: 10,
-                    pointerEvents: 'none',
+                    inset: 0,
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    zIndex: 25,
                   }}
-                />
-
-                {/* Content */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 20,
-                  }}
-                  className="ps-card-content"
                 >
-                  {/* Badge for first place */}
-                  {i === 0 && (
-                    <span
-                      className="liquid-glass"
-                      style={{
-                        display: 'inline-block',
-                        borderRadius: '9999px',
-                        padding: '0.25rem 0.75rem',
-                        fontSize: '10px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '2px',
-                        color: 'rgba(255,255,255,0.7)',
-                        fontFamily: 'var(--font-body)',
-                        marginBottom: '0.75rem',
-                      }}
-                    >
-                      Populaire
-                    </span>
-                  )}
-
-                  {/* Title */}
-                  <h3
+                  {/* Background */}
+                  <div
+                    className="ps-card-bg"
                     style={{
-                      fontFamily: 'var(--font-body)',
-                      fontWeight: 600,
-                      color: '#fff',
-                      margin: '0 0 0.25rem 0',
-                      fontSize: isLarge ? '1.5rem' : undefined,
+                      background: place.image_url
+                        ? `url(${place.image_url}) center/cover no-repeat`
+                        : CARD_GRADIENTS[i] || CARD_GRADIENTS[0],
                     }}
-                    className={isLarge ? '' : 'ps-card-title'}
-                  >
-                    {place.title}
-                  </h3>
+                  />
 
-                  {/* Bottom row */}
+                  {/* Bottom gradient overlay */}
                   <div
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-end',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: '66%',
+                      background:
+                        'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, transparent 100%)',
+                      zIndex: 10,
+                      pointerEvents: 'none',
                     }}
-                  >
-                    {/* Price */}
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-body)',
-                        color: '#fff',
-                      }}
-                      className="ps-card-price"
-                    >
-                      {place.price}₿{' '}
-                      <span style={{ color: 'rgba(255,255,255,0.4)' }}>
-                        / nuit
-                      </span>
-                    </span>
+                  />
 
-                    {/* Rating */}
-                    {count > 0 && (
+                  {/* Content */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 20,
+                    }}
+                    className="ps-card-content"
+                  >
+                    {/* Badge for first place */}
+                    {i === 0 && (
                       <span
+                        className="liquid-glass"
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
+                          display: 'inline-block',
+                          borderRadius: '9999px',
+                          padding: '0.25rem 0.75rem',
+                          fontSize: '10px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '2px',
+                          color: 'rgba(255,255,255,0.7)',
+                          fontFamily: 'var(--font-body)',
+                          marginBottom: '0.75rem',
                         }}
                       >
-                        <Star
-                          size={14}
-                          fill="#fff"
-                          style={{ color: '#fff' }}
-                        />
-                        <span
-                          style={{
-                            fontSize: '0.875rem',
-                            color: '#fff',
-                            fontFamily: 'var(--font-body)',
-                          }}
-                        >
-                          {avg}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            color: 'rgba(255,255,255,0.4)',
-                            fontFamily: 'var(--font-body)',
-                          }}
-                        >
-                          ({count})
-                        </span>
+                        Populaire
                       </span>
                     )}
-                  </div>
 
-                  {/* Hover button */}
-                  <div className="ps-card-hover-btn">
-                    <a
-                      href="#"
-                      className="liquid-glass-strong"
+                    {/* Title */}
+                    <h3
                       style={{
-                        display: 'inline-block',
-                        borderRadius: '9999px',
-                        padding: '0.5rem 1.25rem',
-                        fontSize: '0.875rem',
                         fontFamily: 'var(--font-body)',
+                        fontWeight: 600,
                         color: '#fff',
-                        textDecoration: 'none',
-                        marginTop: '0.75rem',
+                        margin: '0 0 0.25rem 0',
+                        fontSize: isLarge ? '1.5rem' : undefined,
+                      }}
+                      className={isLarge ? '' : 'ps-card-title'}
+                    >
+                      {place.title}
+                    </h3>
+
+                    {/* Bottom row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-end',
                       }}
                     >
-                      Réserver
-                    </a>
+                      {/* Price */}
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          color: '#fff',
+                        }}
+                        className="ps-card-price"
+                      >
+                        {place.price}₿{' '}
+                        <span style={{ color: 'rgba(255,255,255,0.4)' }}>
+                          / nuit
+                        </span>
+                      </span>
+
+                      {/* Rating */}
+                      {count > 0 && (
+                        <span
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                          }}
+                        >
+                          <Star
+                            size={14}
+                            fill="#fff"
+                            style={{ color: '#fff' }}
+                          />
+                          <span
+                            style={{
+                              fontSize: '0.875rem',
+                              color: '#fff',
+                              fontFamily: 'var(--font-body)',
+                            }}
+                          >
+                            {avg}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              color: 'rgba(255,255,255,0.4)',
+                              fontFamily: 'var(--font-body)',
+                            }}
+                          >
+                            ({count})
+                          </span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Hover button */}
+                    <div className="ps-card-hover-btn">
+                      <a
+                        href="#"
+                        className="liquid-glass-strong"
+                        style={{
+                          display: 'inline-block',
+                          borderRadius: '9999px',
+                          padding: '0.5rem 1.25rem',
+                          fontSize: '0.875rem',
+                          fontFamily: 'var(--font-body)',
+                          color: '#fff',
+                          textDecoration: 'none',
+                          marginTop: '0.75rem',
+                        }}
+                      >
+                        Réserver
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
               </motion.div>
             );
           })}

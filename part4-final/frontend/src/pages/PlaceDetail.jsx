@@ -1,7 +1,103 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Star, Check, User, ArrowLeft, Send } from 'lucide-react';
+import {
+  Star, Check, User, ArrowLeft, Send, Trash2,
+  Orbit, Eye, Wind, Wifi, Sparkles, ChefHat,
+} from 'lucide-react';
+
+const AMENITY_ICONS = {
+  'gravité artificielle': Orbit,
+  'vue panoramique': Eye,
+  'oxygène premium': Wind,
+  'wi-fi quantique': Wifi,
+  'spa zéro-g': Sparkles,
+  'cuisine moléculaire': ChefHat,
+};
+
+const getAmenityIcon = (name) => {
+  const Icon = AMENITY_ICONS[name.toLowerCase()] || Check;
+  return <Icon size={16} style={{ color: 'rgba(255,255,255,0.7)' }} />;
+};
+
+const HOST_AVATARS = {
+  'elon@spacestays.io': '/images/avatar-elon.jpg',
+  'aria@spacestays.io': '/images/avatar-aria.jpg',
+};
+
+// ============================================================
+// 📸 GALLERY CONFIG — Add your images here!
+// Put your files in: part4-final/frontend/public/images/
+// Then reference them as '/images/your-file.jpg'
+// ============================================================
+const PLACE_GALLERY = {
+  // Use the place title as the key (case-insensitive match)
+  'dôme olympus — panorama sur mars': [
+    '/images/mars.jpg',
+    '/images/mars2.jpg',
+    '/images/mars3.jpg',
+    '/images/mars4.jpg',
+    // Add more: '/images/mars-interior.jpg', '/images/mars-view.jpg',
+  ],
+  'station orbitale sérénité': [
+    '/images/orbital.jpg',
+    '/images/orbital2.jpg',
+    '/images/orbital3.jpg',
+    '/images/orbital4.jpg',
+    '/images/orbital5.jpg',
+    '/images/orbital6.jpg',
+  ],
+  'capsule lunaire tranquility': [
+    '/images/moon.jpg',
+    '/images/moon2.jpg',
+    '/images/moon3.jpg',
+  ],
+  'habitat europa — sous la glace': [
+    '/images/europa.jpg',
+    '/images/europa2.jpg',
+    '/images/europa3.jpg',
+    '/images/europa4.jpg',
+    '/images/europa5.jpg',
+  ],
+  'nébuleuse lounge titan': [
+    '/images/titan.jpg',
+    '/images/titan2.jpg',
+    '/images/titan3.jpg',
+    '/images/titan4.jpg',
+  ],
+  'avant-poste vénus cloud9': [
+    '/images/venus.jpg',
+    '/images/venus2.jpg',
+    '/images/venus3.jpg',
+  ],
+};
+
+// ============================================================
+// 🎬 VIDEO CONFIG — Add your videos here!
+// Supports .mp4 and .gif  |  Put files in public/images/
+// ============================================================
+const PLACE_VIDEOS = {
+  // 'dôme olympus — panorama sur mars': '/images/mars-tour.mp4',
+  // 'station orbitale sérénité': '/images/orbital-tour.gif',
+  'station orbitale sérénité': '/images/orbital.mp4',
+  'capsule lunaire tranquility': '/images/moon.mp4',
+  'habitat europa — sous la glace': '/images/europa.mp4',
+  'nébuleuse lounge titan': '/images/titan.mp4',
+  'avant-poste vénus cloud9': '/images/venus.mp4',
+  'dôme olympus': '/images/mars.mp4',
+};
+
+function getPlaceGallery(title, fallbackImage) {
+  const key = (title || '').toLowerCase();
+  const gallery = PLACE_GALLERY[key];
+  if (gallery && gallery.length > 0) return gallery;
+  return fallbackImage ? [fallbackImage] : [];
+}
+
+function getPlaceVideo(title) {
+  const key = (title || '').toLowerCase();
+  return PLACE_VIDEOS[key] || null;
+}
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
@@ -154,8 +250,28 @@ export default function PlaceDetail() {
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewError, setReviewError] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [bookingModal, setBookingModal] = useState(false);
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(0);
+  const [contactModal, setContactModal] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [contactMessage, setContactMessage] = useState('');
 
   const { user, token } = useAuth();
+  const navigate = useNavigate();
+
+  const handleBooking = () => {
+    setBookingModal(true);
+    setBookingConfirmed(false);
+  };
+
+  const confirmBooking = () => {
+    setBookingConfirmed(true);
+    setTimeout(() => {
+      setBookingModal(false);
+      setBookingConfirmed(false);
+    }, 3000);
+  };
 
   const submitReview = async (e) => {
     e.preventDefault();
@@ -189,6 +305,34 @@ export default function PlaceDetail() {
     }
   };
 
+  const deletePlace = async () => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce séjour ?")) return;
+    try {
+      const res = await fetch(`/api/v1/places/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to delete place');
+      navigate('/places');
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  };
+
+  const deleteReview = async (reviewId) => {
+    if (!window.confirm("Supprimer cet avis ?")) return;
+    try {
+      const res = await fetch(`/api/v1/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to delete review');
+      setReviews(prev => prev.filter(r => r.id !== reviewId));
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -203,7 +347,7 @@ export default function PlaceDetail() {
           fetch(`/api/v1/users/${data.owner_id}`)
             .then((r) => r.json())
             .then(setOwner)
-            .catch(() => {});
+            .catch(() => { });
         }
       })
       .catch(() => setLoading(false));
@@ -214,7 +358,7 @@ export default function PlaceDetail() {
       .then((data) => {
         if (Array.isArray(data)) setReviews(data);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [id]);
 
   if (loading) {
@@ -260,8 +404,8 @@ export default function PlaceDetail() {
   const avgRating =
     reviews.length > 0
       ? Math.round(
-          (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10
-        ) / 10
+        (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10
+      ) / 10
       : 0;
 
   const gradient = getGradient(place.title);
@@ -340,99 +484,128 @@ export default function PlaceDetail() {
           }}
           className="pd-container"
         >
-        {/* Back link */}
-        <motion.div {...fadeUp(0)}>
-          <Link
-            to="/places"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.875rem',
-              color: 'rgba(255,255,255,0.5)',
-              fontFamily: 'var(--font-body)',
-              textDecoration: 'none',
-              marginBottom: '2rem',
-              transition: 'color 0.2s',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')
-            }
-          >
-            <ArrowLeft size={16} />
-            Retour aux séjours
-          </Link>
-        </motion.div>
-
-        {/* Visual Hero */}
-        <motion.div
-          {...fadeUp(0.1)}
-          className="pd-hero-visual"
-          style={{
-            borderRadius: '1rem',
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              background: place.image_url
-                ? `url(${place.image_url}) center/cover no-repeat`
-                : gradient,
-              position: 'relative',
-            }}
-          >
-            {/* Star overlay — only show if no image */}
-            {!place.image_url && <div className="pd-hero-stars" />}
-            {/* Bottom gradient */}
-            <div
+          {/* Back link */}
+          <motion.div {...fadeUp(0)}>
+            <Link
+              to="/places"
               style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: '40%',
-                background:
-                  'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)',
-              }}
-            />
-          </div>
-        </motion.div>
-
-        {/* Header */}
-        <motion.div
-          {...fadeUp(0.2)}
-          className="pd-header"
-          style={{ marginTop: '2rem' }}
-        >
-          <div style={{ flex: 1 }}>
-            {/* Tags */}
-            <div
-              style={{
-                display: 'flex',
+                display: 'inline-flex',
+                alignItems: 'center',
                 gap: '0.5rem',
-                marginBottom: '1rem',
-                flexWrap: 'wrap',
+                fontSize: '0.875rem',
+                color: 'rgba(255,255,255,0.5)',
+                fontFamily: 'var(--font-body)',
+                textDecoration: 'none',
+                marginBottom: '2rem',
+                transition: 'color 0.2s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')
+              }
             >
-              <span
-                className="liquid-glass"
+              <ArrowLeft size={16} />
+              Retour aux séjours
+            </Link>
+          </motion.div>
+
+          {/* Visual Hero — Gallery */}
+          {(() => {
+            const gallery = getPlaceGallery(place.title, place.image_url);
+            const currentImg = gallery[selectedPhoto] || gallery[0];
+            return (
+              <>
+                <motion.div
+                  {...fadeUp(0.1)}
+                  className="pd-hero-visual"
+                  style={{
+                    borderRadius: '1rem',
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      background: currentImg
+                        ? `url(${currentImg}) center/cover no-repeat`
+                        : gradient,
+                      position: 'relative',
+                      transition: 'background 0.4s ease',
+                    }}
+                  >
+                    {!currentImg && <div className="pd-hero-stars" />}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: '40%',
+                        background:
+                          'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)',
+                      }}
+                    />
+                    {/* Photo counter */}
+                    {gallery.length > 1 && (
+                      <div
+                        className="liquid-glass"
+                        style={{
+                          position: 'absolute',
+                          bottom: '1rem',
+                          right: '1rem',
+                          borderRadius: '9999px',
+                          padding: '0.25rem 0.75rem',
+                          fontSize: '0.75rem',
+                          color: 'rgba(255,255,255,0.8)',
+                          fontFamily: 'var(--font-body)',
+                        }}
+                      >
+                        {selectedPhoto + 1} / {gallery.length}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Thumbnails */}
+                {gallery.length > 1 && (
+                  <motion.div
+                    {...fadeUp(0.15)}
+                    className="pd-gallery-thumbs"
+                  >
+                    {gallery.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedPhoto(i)}
+                        className={`pd-thumb ${i === selectedPhoto ? 'pd-thumb-active' : ''}`}
+                        style={{
+                          background: `url(${img}) center/cover no-repeat`,
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+              </>
+            );
+          })()}
+
+          {/* Header */}
+          <motion.div
+            {...fadeUp(0.2)}
+            className="pd-header"
+            style={{ marginTop: '2rem' }}
+          >
+            <div style={{ flex: 1 }}>
+              {/* Tags */}
+              <div
                 style={{
-                  borderRadius: '9999px',
-                  padding: '0.25rem 0.75rem',
-                  fontSize: '10px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  color: 'rgba(255,255,255,0.7)',
-                  fontFamily: 'var(--font-body)',
+                  display: 'flex',
+                  gap: '0.5rem',
+                  marginBottom: '1rem',
+                  flexWrap: 'wrap',
                 }}
               >
-                Nouveau
-              </span>
-              {avgRating >= 4.5 && (
                 <span
                   className="liquid-glass"
                   style={{
@@ -445,245 +618,459 @@ export default function PlaceDetail() {
                     fontFamily: 'var(--font-body)',
                   }}
                 >
-                  Coup de coeur
+                  Nouveau
                 </span>
-              )}
+                {avgRating >= 4.5 && (
+                  <span
+                    className="liquid-glass"
+                    style={{
+                      borderRadius: '9999px',
+                      padding: '0.25rem 0.75rem',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      color: 'rgba(255,255,255,0.7)',
+                      fontFamily: 'var(--font-body)',
+                    }}
+                  >
+                    Coup de coeur
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                <h1
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    letterSpacing: '-2px',
+                    color: '#fff',
+                    margin: 0,
+                  }}
+                  className="pd-title"
+                >
+                  {place.title}
+                </h1>
+                {user && (user.is_admin || user.id === place.owner_id) && (
+                  <button
+                    onClick={deletePlace}
+                    className="liquid-glass"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      borderRadius: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      fontSize: '0.875rem',
+                      color: '#ff4444',
+                      background: 'rgba(255, 68, 68, 0.1)',
+                      border: '1px solid rgba(255, 68, 68, 0.2)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 68, 68, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 68, 68, 0.1)';
+                    }}
+                  >
+                    <Trash2 size={16} /> Supprimer
+                  </button>
+                )}
+              </div>
+
+              {/* Meta */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  marginTop: '0.75rem',
+                  fontSize: '0.875rem',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontFamily: 'var(--font-body)',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {reviews.length > 0 && (
+                  <>
+                    <Star
+                      size={14}
+                      fill="#fff"
+                      style={{ color: '#fff', marginRight: '0.25rem' }}
+                    />
+                    <span style={{ color: '#fff' }}>{avgRating}</span>
+                    <span>&nbsp;·&nbsp;{reviews.length} avis</span>
+                  </>
+                )}
+                {place.amenities && (
+                  <span>
+                    &nbsp;·&nbsp;{place.amenities.length} équipement
+                    {place.amenities.length > 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Title */}
-            <h1
+            {/* Price card */}
+            <div
+              className="liquid-glass pd-price-card"
               style={{
-                fontFamily: 'var(--font-heading)',
-                letterSpacing: '-2px',
-                color: '#fff',
-                margin: 0,
+                borderRadius: '1rem',
+                padding: '1.5rem',
+                textAlign: 'center',
+                minWidth: '200px',
+                flexShrink: 0,
               }}
-              className="pd-title"
             >
-              {place.title}
-            </h1>
+              <div
+                style={{
+                  fontSize: '1.875rem',
+                  fontWeight: 600,
+                  color: '#fff',
+                  fontFamily: 'var(--font-body)',
+                }}
+              >
+                {place.price}₿
+              </div>
+              <div
+                style={{
+                  fontSize: '0.875rem',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontFamily: 'var(--font-body)',
+                }}
+              >
+                / nuit
+              </div>
+              <button
+                onClick={handleBooking}
+                style={{
+                  width: '100%',
+                  marginTop: '1rem',
+                  background: '#fff',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  padding: '0.75rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = 'scale(1.03)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = 'scale(1)')
+                }
+              >
+                Réserver
+              </button>
+            </div>
 
-            {/* Location */}
+            {/* Booking Modal */}
+            {bookingModal && (
+              <div
+                className="booking-overlay"
+                onClick={() => { if (!bookingConfirmed) { setBookingModal(false); } }}
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="liquid-glass booking-modal"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    borderRadius: '1.25rem',
+                    padding: '2.5rem 2rem',
+                    maxWidth: '28rem',
+                    width: '90%',
+                    textAlign: 'center',
+                    position: 'relative',
+                  }}
+                >
+                  {!bookingConfirmed ? (
+                    <>
+                      <div style={{
+                        fontSize: '2rem',
+                        marginBottom: '1rem',
+                      }}>🚀</div>
+                      <h3 style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.5rem',
+                        color: '#fff',
+                        margin: '0 0 0.5rem',
+                        letterSpacing: '-1px',
+                      }}>
+                        Confirmer votre réservation
+                      </h3>
+                      <p style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.875rem',
+                        color: 'rgba(255,255,255,0.5)',
+                        fontWeight: 300,
+                        lineHeight: 1.6,
+                        margin: '0 0 1.5rem',
+                      }}>
+                        {place.title}<br />
+                        <span style={{ color: '#fff', fontWeight: 600 }}>{place.price}₿</span> / nuit
+                      </p>
+                      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                        <button
+                          onClick={() => setBookingModal(false)}
+                          className="liquid-glass"
+                          style={{
+                            borderRadius: '9999px',
+                            padding: '0.75rem 1.5rem',
+                            fontSize: '0.875rem',
+                            color: 'rgba(255,255,255,0.6)',
+                            fontFamily: 'var(--font-body)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'color 0.2s',
+                            background: 'none',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          onClick={confirmBooking}
+                          style={{
+                            borderRadius: '9999px',
+                            padding: '0.75rem 2rem',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-body)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            background: '#fff',
+                            color: '#000',
+                            transition: 'transform 0.2s',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                        >
+                          Confirmer la réservation
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    >
+                      <div className="booking-success-check">
+                        <Check size={32} style={{ color: '#fff' }} />
+                      </div>
+                      <h3 style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.5rem',
+                        color: '#4ade80',
+                        margin: '1rem 0 0.5rem',
+                        letterSpacing: '-1px',
+                      }}>
+                        Réservation confirmée !
+                      </h3>
+                      <p style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.875rem',
+                        color: 'rgba(255,255,255,0.6)',
+                        fontWeight: 300,
+                        lineHeight: 1.7,
+                        margin: 0,
+                      }}>
+                        Merci pour votre réservation.<br />
+                        L'hôte a été notifié et vous recontactera très prochainement.
+                      </p>
+                    </motion.div>
+                  )}
+                </motion.div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Description */}
+          <motion.div
+            {...fadeUp(0.3)}
+            style={{
+              marginTop: '1.5rem',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              paddingTop: '2.5rem',
+            }}
+          >
+            <p className="pd-section-label">À PROPOS</p>
             <p
               style={{
-                color: 'rgba(255,255,255,0.5)',
+                color: 'rgba(255,255,255,0.6)',
                 fontFamily: 'var(--font-body)',
                 fontWeight: 300,
-                marginTop: '0.5rem',
+                lineHeight: 1.7,
+                maxWidth: '48rem',
+                fontSize: '1rem',
               }}
-              className="pd-location"
             >
-              {place.description || `Lat ${place.latitude?.toFixed(1)}° · Lon ${place.longitude?.toFixed(1)}°`}
+              {place.description ||
+                'Ce séjour extraordinaire vous offre une expérience unique dans le système solaire. Profitez d\'un habitat pressurisé de dernière génération avec vue panoramique sur l\'espace. Chaque détail a été pensé pour votre confort et votre sécurité.'}
             </p>
+          </motion.div>
 
-            {/* Meta */}
-            <div
+          {/* Video section */}
+          {(() => {
+            const videoUrl = getPlaceVideo(place.title);
+            if (!videoUrl) return null;
+            const isGif = videoUrl.toLowerCase().endsWith('.gif');
+            return (
+              <motion.div
+                {...fadeUp(0.32)}
+                style={{
+                  marginTop: '2rem',
+                }}
+              >
+                <p className="pd-section-label">VISITE VIDÉO</p>
+                <div
+                  className="liquid-glass"
+                  style={{
+                    borderRadius: '1rem',
+                    overflow: 'hidden',
+                    padding: '0.25rem',
+                  }}
+                >
+                  {isGif ? (
+                    <img
+                      src={videoUrl}
+                      alt="Visite vidéo"
+                      style={{
+                        width: '100%',
+                        borderRadius: '0.75rem',
+                        display: 'block',
+                      }}
+                    />
+                  ) : (
+                    <video
+                      src={videoUrl}
+                      controls
+                      playsInline
+                      style={{
+                        width: '100%',
+                        borderRadius: '0.75rem',
+                        display: 'block',
+                        background: '#000',
+                      }}
+                    />
+                  )}
+                </div>
+              </motion.div>
+            );
+          })()}
+
+          {/* Amenities */}
+          {place.amenities && place.amenities.length > 0 && (
+            <motion.div
+              {...fadeUp(0.35)}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                marginTop: '0.75rem',
-                fontSize: '0.875rem',
-                color: 'rgba(255,255,255,0.4)',
-                fontFamily: 'var(--font-body)',
-                flexWrap: 'wrap',
+                marginTop: '3rem',
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+                paddingTop: '2.5rem',
               }}
             >
-              {reviews.length > 0 && (
-                <>
-                  <Star
-                    size={14}
-                    fill="#fff"
-                    style={{ color: '#fff', marginRight: '0.25rem' }}
-                  />
-                  <span style={{ color: '#fff' }}>{avgRating}</span>
-                  <span>&nbsp;·&nbsp;{reviews.length} avis</span>
-                </>
-              )}
-              {place.amenities && (
-                <span>
-                  &nbsp;·&nbsp;{place.amenities.length} équipement
-                  {place.amenities.length > 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-          </div>
+              <p className="pd-section-label">ÉQUIPEMENTS</p>
+              <div className="pd-amenities-grid">
+                {place.amenities.map((amenity, i) => (
+                  <motion.div
+                    key={amenity.id}
+                    {...fadeUp(0.35 + i * 0.05)}
+                    className="liquid-glass"
+                    style={{
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div
+                      className="liquid-glass"
+                      style={{
+                        width: '2.25rem',
+                        height: '2.25rem',
+                        borderRadius: '9999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {getAmenityIcon(amenity.name)}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '0.875rem',
+                        color: 'rgba(255,255,255,0.7)',
+                        fontFamily: 'var(--font-body)',
+                      }}
+                    >
+                      {amenity.name}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-          {/* Price card */}
-          <div
-            className="liquid-glass pd-price-card"
-            style={{
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              textAlign: 'center',
-              minWidth: '200px',
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                fontSize: '1.875rem',
-                fontWeight: 600,
-                color: '#fff',
-                fontFamily: 'var(--font-body)',
-              }}
-            >
-              {place.price}₿
-            </div>
-            <div
-              style={{
-                fontSize: '0.875rem',
-                color: 'rgba(255,255,255,0.4)',
-                fontFamily: 'var(--font-body)',
-              }}
-            >
-              / nuit
-            </div>
-            <button
-              style={{
-                width: '100%',
-                marginTop: '1rem',
-                background: '#fff',
-                color: '#000',
-                border: 'none',
-                borderRadius: '9999px',
-                padding: '0.75rem',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                fontFamily: 'var(--font-body)',
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = 'scale(1.03)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = 'scale(1)')
-              }
-            >
-              Réserver
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Description */}
-        <motion.div
-          {...fadeUp(0.3)}
-          style={{
-            marginTop: '3rem',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            paddingTop: '2.5rem',
-          }}
-        >
-          <p className="pd-section-label">À PROPOS</p>
-          <p
-            style={{
-              color: 'rgba(255,255,255,0.6)',
-              fontFamily: 'var(--font-body)',
-              fontWeight: 300,
-              lineHeight: 1.7,
-              maxWidth: '48rem',
-              fontSize: '1rem',
-            }}
-          >
-            {place.description ||
-              'Ce séjour extraordinaire vous offre une expérience unique dans le système solaire. Profitez d\'un habitat pressurisé de dernière génération avec vue panoramique sur l\'espace. Chaque détail a été pensé pour votre confort et votre sécurité.'}
-          </p>
-        </motion.div>
-
-        {/* Amenities */}
-        {place.amenities && place.amenities.length > 0 && (
+          {/* Host */}
           <motion.div
-            {...fadeUp(0.35)}
+            {...fadeUp(0.4)}
             style={{
               marginTop: '3rem',
               borderTop: '1px solid rgba(255,255,255,0.06)',
               paddingTop: '2.5rem',
             }}
           >
-            <p className="pd-section-label">ÉQUIPEMENTS</p>
-            <div className="pd-amenities-grid">
-              {place.amenities.map((amenity, i) => (
-                <motion.div
-                  key={amenity.id}
-                  {...fadeUp(0.35 + i * 0.05)}
-                  className="liquid-glass"
+            <p className="pd-section-label">VOTRE HÔTE</p>
+            <div
+              className="liquid-glass pd-host-card"
+              style={{
+                borderRadius: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.5rem',
+              }}
+            >
+              {owner && HOST_AVATARS[owner.email] ? (
+                <img
+                  src={HOST_AVATARS[owner.email]}
+                  alt={`${owner.first_name} ${owner.last_name}`}
                   style={{
-                    borderRadius: '0.75rem',
-                    padding: '1rem',
+                    width: '4rem',
+                    height: '4rem',
+                    borderRadius: '9999px',
+                    objectFit: 'cover',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '4rem',
+                    height: '4rem',
+                    borderRadius: '9999px',
+                    background: 'rgba(255,255,255,0.1)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.75rem',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}
                 >
-                  <div
-                    className="liquid-glass"
-                    style={{
-                      width: '2.25rem',
-                      height: '2.25rem',
-                      borderRadius: '9999px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Check
-                      size={16}
-                      style={{ color: 'rgba(255,255,255,0.7)' }}
-                    />
-                  </div>
-                  <span
-                    style={{
-                      fontSize: '0.875rem',
-                      color: 'rgba(255,255,255,0.7)',
-                      fontFamily: 'var(--font-body)',
-                    }}
-                  >
-                    {amenity.name}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Host */}
-        <motion.div
-          {...fadeUp(0.4)}
-          style={{
-            marginTop: '3rem',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            paddingTop: '2.5rem',
-          }}
-        >
-          <p className="pd-section-label">VOTRE HÔTE</p>
-          <div
-            className="liquid-glass pd-host-card"
-            style={{
-              borderRadius: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1.5rem',
-            }}
-          >
-              <div
-                style={{
-                  width: '4rem',
-                  height: '4rem',
-                  borderRadius: '9999px',
-                  background: 'rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                <User
-                  size={28}
-                  style={{ color: 'rgba(255,255,255,0.4)' }}
-                />
-              </div>
+                  <User
+                    size={28}
+                    style={{ color: 'rgba(255,255,255,0.4)' }}
+                  />
+                </div>
+              )}
               <div>
                 <div
                   style={{
@@ -731,6 +1118,7 @@ export default function PlaceDetail() {
                   Hôte vérifié · Répond en moins d'une heure
                 </p>
                 <button
+                  onClick={() => { setContactModal(true); setContactSent(false); setContactMessage(''); }}
                   className="liquid-glass"
                   style={{
                     marginTop: '1rem',
@@ -754,393 +1142,582 @@ export default function PlaceDetail() {
                 </button>
               </div>
             </div>
-        </motion.div>
 
-        {/* Reviews */}
-        <motion.div
-          {...fadeUp(0.45)}
-          style={{
-            marginTop: '3rem',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            paddingTop: '2.5rem',
-          }}
-        >
-          <p className="pd-section-label">AVIS</p>
-          {reviews.length > 0 ? (
-            <>
-              <h3
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontWeight: 600,
-                  color: '#fff',
-                  fontSize: '1.5rem',
-                  marginBottom: '2rem',
-                }}
+            {/* Contact Host Modal */}
+            {contactModal && (
+              <div
+                className="booking-overlay"
+                onClick={() => { if (!contactSent) setContactModal(false); }}
               >
-                <Star
-                  size={18}
-                  fill="#fff"
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="liquid-glass booking-modal"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
-                    color: '#fff',
-                    verticalAlign: 'middle',
-                    marginRight: '0.5rem',
+                    borderRadius: '1.25rem',
+                    padding: '2.5rem 2rem',
+                    maxWidth: '28rem',
+                    width: '90%',
+                    textAlign: 'center',
+                    position: 'relative',
                   }}
-                />
-                {avgRating} · {reviews.length} avis
-              </h3>
-              <div className="pd-reviews-grid">
-                {reviews.map((review, i) => (
-                  <motion.div
-                    key={review.id}
-                    {...fadeUp(0.45 + i * 0.08)}
-                    className="liquid-glass"
+                >
+                  {!contactSent ? (
+                    <>
+                      <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>✉️</div>
+                      <h3 style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.5rem',
+                        color: '#fff',
+                        margin: '0 0 0.25rem',
+                        letterSpacing: '-1px',
+                      }}>
+                        Contacter {owner ? owner.first_name : 'l\'hôte'}
+                      </h3>
+                      <p style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.8125rem',
+                        color: 'rgba(255,255,255,0.4)',
+                        fontWeight: 300,
+                        margin: '0 0 1.25rem',
+                      }}>
+                        Répond généralement en moins d'une heure
+                      </p>
+                      <textarea
+                        value={contactMessage}
+                        onChange={(e) => setContactMessage(e.target.value)}
+                        placeholder="Bonjour, je suis intéressé(e) par votre séjour..."
+                        rows={4}
+                        style={{
+                          width: '100%',
+                          padding: '0.875rem 1rem',
+                          background: 'rgba(255,255,255,0.06)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          borderRadius: '0.75rem',
+                          color: '#fff',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '0.875rem',
+                          resize: 'vertical',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                          transition: 'border-color 0.2s',
+                          marginBottom: '1.25rem',
+                        }}
+                        onFocus={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.3)')}
+                        onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+                      />
+                      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                        <button
+                          onClick={() => setContactModal(false)}
+                          className="liquid-glass"
+                          style={{
+                            borderRadius: '9999px',
+                            padding: '0.75rem 1.5rem',
+                            fontSize: '0.875rem',
+                            color: 'rgba(255,255,255,0.6)',
+                            fontFamily: 'var(--font-body)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'color 0.2s',
+                            background: 'none',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          onClick={() => { if (contactMessage.trim()) setContactSent(true); setTimeout(() => setContactModal(false), 3000); }}
+                          disabled={!contactMessage.trim()}
+                          style={{
+                            borderRadius: '9999px',
+                            padding: '0.75rem 2rem',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-body)',
+                            border: 'none',
+                            cursor: contactMessage.trim() ? 'pointer' : 'not-allowed',
+                            background: '#fff',
+                            color: '#000',
+                            transition: 'transform 0.2s',
+                            opacity: contactMessage.trim() ? 1 : 0.4,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                          }}
+                          onMouseEnter={(e) => { if (contactMessage.trim()) e.currentTarget.style.transform = 'scale(1.05)'; }}
+                          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                        >
+                          <Send size={14} />
+                          Envoyer
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    >
+                      <div className="booking-success-check">
+                        <Send size={28} style={{ color: '#fff' }} />
+                      </div>
+                      <h3 style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.5rem',
+                        color: '#4ade80',
+                        margin: '1rem 0 0.5rem',
+                        letterSpacing: '-1px',
+                      }}>
+                        Message envoyé !
+                      </h3>
+                      <p style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.875rem',
+                        color: 'rgba(255,255,255,0.6)',
+                        fontWeight: 300,
+                        lineHeight: 1.7,
+                        margin: 0,
+                      }}>
+                        Merci, votre message a été transmis à<br />
+                        {owner ? `${owner.first_name} ${owner.last_name}` : 'l\'hôte'}.
+                        <br />Vous recevrez une réponse très prochainement.
+                      </p>
+                    </motion.div>
+                  )}
+                </motion.div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Reviews */}
+          <motion.div
+            {...fadeUp(0.45)}
+            style={{
+              marginTop: '3rem',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              paddingTop: '2.5rem',
+            }}
+          >
+            <p className="pd-section-label">AVIS</p>
+            {reviews.length > 0 ? (
+              <>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 600,
+                    color: '#fff',
+                    fontSize: '1.5rem',
+                    marginBottom: '2rem',
+                  }}
+                >
+                  <Star
+                    size={18}
+                    fill="#fff"
                     style={{
-                      borderRadius: '0.75rem',
-                      padding: '1.25rem',
+                      color: '#fff',
+                      verticalAlign: 'middle',
+                      marginRight: '0.5rem',
                     }}
-                  >
-                    <div
+                  />
+                  {avgRating} · {reviews.length} avis
+                </h3>
+                <div className="pd-reviews-grid">
+                  {reviews.map((review, i) => (
+                    <motion.div
+                      key={review.id}
+                      {...fadeUp(0.45 + i * 0.08)}
+                      className="liquid-glass"
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
+                        borderRadius: '0.75rem',
+                        padding: '1.25rem',
+                        position: 'relative',
                       }}
                     >
                       <div
                         style={{
-                          width: '2rem',
-                          height: '2rem',
-                          borderRadius: '9999px',
-                          background: 'rgba(255,255,255,0.1)',
-                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
                         }}
-                      />
-                      <div>
-                        <span
+                      >
+                        <div
                           style={{
-                            fontSize: '0.875rem',
-                            color: '#fff',
-                            fontFamily: 'var(--font-body)',
+                            width: '2rem',
+                            height: '2rem',
+                            borderRadius: '9999px',
+                            background: 'rgba(255,255,255,0.1)',
+                            flexShrink: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                         >
-                          Voyageur Vérifié
-                        </span>
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            color: 'rgba(255,255,255,0.4)',
-                            fontFamily: 'var(--font-body)',
-                            marginLeft: '0.5rem',
-                          }}
-                        >
-                          {new Date(review.created_at).toLocaleDateString(
-                            'fr-FR',
-                            { month: 'long', year: 'numeric' }
-                          )}
-                        </span>
+                          <User
+                            size={14}
+                            style={{ color: 'rgba(255,255,255,0.4)' }}
+                          />
+                        </div>
+                        <div>
+                          <span
+                            style={{
+                              fontSize: '0.875rem',
+                              color: '#fff',
+                              fontFamily: 'var(--font-body)',
+                            }}
+                          >
+                            Voyageur Vérifié
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              color: 'rgba(255,255,255,0.4)',
+                              fontFamily: 'var(--font-body)',
+                              marginLeft: '0.5rem',
+                            }}
+                          >
+                            {new Date(review.created_at).toLocaleDateString(
+                              'fr-FR',
+                              { month: 'long', year: 'numeric' }
+                            )}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <p
-                      style={{
-                        fontSize: '0.875rem',
-                        color: 'rgba(255,255,255,0.5)',
-                        fontFamily: 'var(--font-body)',
-                        fontWeight: 300,
-                        marginTop: '0.75rem',
-                        lineHeight: 1.6,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {review.text}
-                    </p>
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '0.125rem',
-                        marginTop: '0.75rem',
-                      }}
-                    >
-                      {Array.from({ length: 5 }).map((_, j) => (
-                        <Star
-                          key={j}
-                          size={12}
-                          fill={j < review.rating ? '#fff' : 'transparent'}
+                      {user && (user.is_admin || user.id === review.user_id) && (
+                        <button
+                          onClick={() => deleteReview(review.id)}
                           style={{
-                            color:
-                              j < review.rating
-                                ? '#fff'
-                                : 'rgba(255,255,255,0.2)',
+                            position: 'absolute',
+                            top: '1.25rem',
+                            right: '1.25rem',
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'rgba(255, 68, 68, 0.6)',
+                            cursor: 'pointer',
+                            padding: '0.25rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '0.25rem',
+                            transition: 'color 0.2s, background 0.2s',
                           }}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p
-              style={{
-                color: 'rgba(255,255,255,0.4)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 300,
-              }}
-            >
-              Aucun avis pour le moment.
-            </p>
-          )}
-
-          {/* Review form — only if logged in */}
-          {user && (
-            <motion.form
-              {...fadeUp(0.55)}
-              onSubmit={submitReview}
-              className="liquid-glass"
-              style={{
-                marginTop: '2rem',
-                borderRadius: '1rem',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-              }}
-            >
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#ff4444';
+                            e.currentTarget.style.background = 'rgba(255, 68, 68, 0.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = 'rgba(255, 68, 68, 0.6)';
+                            e.currentTarget.style.background = 'transparent';
+                          }}
+                          title="Supprimer l'avis"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                      <p
+                        style={{
+                          fontSize: '0.875rem',
+                          color: 'rgba(255,255,255,0.5)',
+                          fontFamily: 'var(--font-body)',
+                          fontWeight: 300,
+                          marginTop: '0.75rem',
+                          lineHeight: 1.6,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {review.text}
+                      </p>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '0.125rem',
+                          marginTop: '0.75rem',
+                        }}
+                      >
+                        {Array.from({ length: 5 }).map((_, j) => (
+                          <Star
+                            key={j}
+                            size={12}
+                            fill={j < review.rating ? '#fff' : 'transparent'}
+                            style={{
+                              color:
+                                j < review.rating
+                                  ? '#fff'
+                                  : 'rgba(255,255,255,0.2)',
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </>
+            ) : (
               <p
                 style={{
+                  color: 'rgba(255,255,255,0.4)',
                   fontFamily: 'var(--font-body)',
-                  fontWeight: 600,
-                  color: '#fff',
-                  fontSize: '1rem',
-                  margin: 0,
+                  fontWeight: 300,
                 }}
               >
-                Laisser un avis
+                Aucun avis pour le moment.
               </p>
+            )}
 
-              {/* Star rating selector */}
-              <div style={{ display: 'flex', gap: '0.25rem' }}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    size={24}
-                    fill={
-                      star <= (reviewHover || reviewRating)
-                        ? '#fff'
-                        : 'transparent'
-                    }
-                    style={{
-                      color:
-                        star <= (reviewHover || reviewRating)
-                          ? '#fff'
-                          : 'rgba(255,255,255,0.2)',
-                      cursor: 'pointer',
-                      transition: 'color 0.15s',
-                    }}
-                    onClick={() => setReviewRating(star)}
-                    onMouseEnter={() => setReviewHover(star)}
-                    onMouseLeave={() => setReviewHover(0)}
-                  />
-                ))}
-                <span
-                  style={{
-                    marginLeft: '0.5rem',
-                    fontSize: '0.875rem',
-                    color: 'rgba(255,255,255,0.4)',
-                    fontFamily: 'var(--font-body)',
-                    alignSelf: 'center',
-                  }}
-                >
-                  {reviewRating}/5
-                </span>
-              </div>
-
-              {/* Text input */}
-              <textarea
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                placeholder="Partagez votre expérience..."
-                required
-                rows={3}
+            {/* Review form — only if logged in */}
+            {user && (
+              <motion.form
+                {...fadeUp(0.55)}
+                onSubmit={submitReview}
+                className="liquid-glass"
                 style={{
-                  width: '100%',
-                  padding: '0.875rem 1rem',
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.75rem',
-                  color: '#fff',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.875rem',
-                  resize: 'vertical',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s',
+                  marginTop: '2rem',
+                  borderRadius: '1rem',
+                  padding: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
                 }}
-                onFocus={(e) =>
-                  (e.target.style.borderColor = 'rgba(255,255,255,0.3)')
-                }
-                onBlur={(e) =>
-                  (e.target.style.borderColor = 'rgba(255,255,255,0.1)')
-                }
-              />
-
-              {reviewError && (
+              >
                 <p
                   style={{
-                    color: '#ff6b6b',
-                    fontSize: '0.875rem',
                     fontFamily: 'var(--font-body)',
+                    fontWeight: 600,
+                    color: '#fff',
+                    fontSize: '1rem',
                     margin: 0,
                   }}
                 >
-                  {reviewError}
+                  Laisser un avis
                 </p>
-              )}
 
-              <button
-                type="submit"
-                disabled={reviewSubmitting}
+                {/* Star rating selector */}
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={24}
+                      fill={
+                        star <= (reviewHover || reviewRating)
+                          ? '#fff'
+                          : 'transparent'
+                      }
+                      style={{
+                        color:
+                          star <= (reviewHover || reviewRating)
+                            ? '#fff'
+                            : 'rgba(255,255,255,0.2)',
+                        cursor: 'pointer',
+                        transition: 'color 0.15s',
+                      }}
+                      onClick={() => setReviewRating(star)}
+                      onMouseEnter={() => setReviewHover(star)}
+                      onMouseLeave={() => setReviewHover(0)}
+                    />
+                  ))}
+                  <span
+                    style={{
+                      marginLeft: '0.5rem',
+                      fontSize: '0.875rem',
+                      color: 'rgba(255,255,255,0.4)',
+                      fontFamily: 'var(--font-body)',
+                      alignSelf: 'center',
+                    }}
+                  >
+                    {reviewRating}/5
+                  </span>
+                </div>
+
+                {/* Text input */}
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Partagez votre expérience..."
+                  required
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '0.875rem 1rem',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '0.75rem',
+                    color: '#fff',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.875rem',
+                    resize: 'vertical',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onFocus={(e) =>
+                    (e.target.style.borderColor = 'rgba(255,255,255,0.3)')
+                  }
+                  onBlur={(e) =>
+                    (e.target.style.borderColor = 'rgba(255,255,255,0.1)')
+                  }
+                />
+
+                {reviewError && (
+                  <p
+                    style={{
+                      color: '#ff6b6b',
+                      fontSize: '0.875rem',
+                      fontFamily: 'var(--font-body)',
+                      margin: 0,
+                    }}
+                  >
+                    {reviewError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={reviewSubmitting}
+                  style={{
+                    alignSelf: 'flex-start',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: '#fff',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    padding: '0.625rem 1.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-body)',
+                    cursor: reviewSubmitting ? 'not-allowed' : 'pointer',
+                    opacity: reviewSubmitting ? 0.6 : 1,
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!reviewSubmitting)
+                      e.currentTarget.style.transform = 'scale(1.03)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                  <Send size={14} />
+                  {reviewSubmitting ? 'Envoi...' : 'Publier'}
+                </button>
+              </motion.form>
+            )}
+
+            {!user && (
+              <motion.div {...fadeUp(0.55)} style={{ marginTop: '1.5rem' }}>
+                <Link
+                  to="/login"
+                  style={{
+                    fontSize: '0.875rem',
+                    color: 'rgba(255,255,255,0.5)',
+                    fontFamily: 'var(--font-body)',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '3px',
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')
+                  }
+                >
+                  Connectez-vous pour laisser un avis
+                </Link>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Bottom CTA */}
+          <motion.div
+            {...fadeUp(0.5)}
+            style={{
+              marginTop: '4rem',
+              marginBottom: '2rem',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              paddingTop: '2.5rem',
+              paddingBottom: '2rem',
+              textAlign: 'center',
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading)',
+                color: '#fff',
+                margin: 0,
+              }}
+              className="pd-bottom-heading"
+            >
+              Prêt pour le{' '}
+              <span
                 style={{
-                  alignSelf: 'flex-start',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
+                  fontFamily: 'var(--font-accent)',
+                  fontStyle: 'italic',
+                }}
+              >
+                décollage
+              </span>{' '}
+              ?
+            </h2>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '1rem',
+                marginTop: '1.5rem',
+                flexWrap: 'wrap',
+              }}
+            >
+              <button
+                onClick={handleBooking}
+                style={{
                   background: '#fff',
                   color: '#000',
                   border: 'none',
                   borderRadius: '9999px',
-                  padding: '0.625rem 1.5rem',
+                  padding: '0.75rem 2rem',
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   fontFamily: 'var(--font-body)',
-                  cursor: reviewSubmitting ? 'not-allowed' : 'pointer',
-                  opacity: reviewSubmitting ? 0.6 : 1,
+                  cursor: 'pointer',
                   transition: 'transform 0.2s',
                 }}
-                onMouseEnter={(e) => {
-                  if (!reviewSubmitting)
-                    e.currentTarget.style.transform = 'scale(1.03)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = 'scale(1.03)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = 'scale(1)')
+                }
               >
-                <Send size={14} />
-                {reviewSubmitting ? 'Envoi...' : 'Publier'}
+                Réserver ce séjour
               </button>
-            </motion.form>
-          )}
-
-          {!user && (
-            <motion.div {...fadeUp(0.55)} style={{ marginTop: '1.5rem' }}>
               <Link
-                to="/login"
+                to="/"
+                className="liquid-glass"
                 style={{
+                  borderRadius: '9999px',
+                  padding: '0.75rem 2rem',
                   fontSize: '0.875rem',
-                  color: 'rgba(255,255,255,0.5)',
+                  color: 'rgba(255,255,255,0.7)',
+                  textDecoration: 'none',
                   fontFamily: 'var(--font-body)',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '3px',
                   transition: 'color 0.2s',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')
+                  (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')
                 }
               >
-                Connectez-vous pour laisser un avis
+                Voir d'autres séjours
               </Link>
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          {...fadeUp(0.5)}
-          style={{
-            marginTop: '4rem',
-            marginBottom: '2rem',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            paddingTop: '2.5rem',
-            paddingBottom: '2rem',
-            textAlign: 'center',
-          }}
-        >
-          <h2
-            style={{
-              fontFamily: 'var(--font-heading)',
-              color: '#fff',
-              margin: 0,
-            }}
-            className="pd-bottom-heading"
-          >
-            Prêt pour le{' '}
-            <span
-              style={{
-                fontFamily: 'var(--font-accent)',
-                fontStyle: 'italic',
-              }}
-            >
-              décollage
-            </span>{' '}
-            ?
-          </h2>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '1rem',
-              marginTop: '1.5rem',
-              flexWrap: 'wrap',
-            }}
-          >
-            <button
-              style={{
-                background: '#fff',
-                color: '#000',
-                border: 'none',
-                borderRadius: '9999px',
-                padding: '0.75rem 2rem',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                fontFamily: 'var(--font-body)',
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = 'scale(1.03)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = 'scale(1)')
-              }
-            >
-              Réserver ce séjour
-            </button>
-            <Link
-              to="/"
-              className="liquid-glass"
-              style={{
-                borderRadius: '9999px',
-                padding: '0.75rem 2rem',
-                fontSize: '0.875rem',
-                color: 'rgba(255,255,255,0.7)',
-                textDecoration: 'none',
-                fontFamily: 'var(--font-body)',
-                transition: 'color 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')
-              }
-            >
-              Voir d'autres séjours
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-      <Footer />
+            </div>
+          </motion.div>
+        </div>
+        <Footer />
       </div>
 
       <style>{`
@@ -1221,6 +1798,46 @@ export default function PlaceDetail() {
           margin-bottom: 1.5rem;
         }
 
+        .pd-gallery-thumbs {
+          display: flex;
+          gap: 0.5rem;
+          margin-top: 0.75rem;
+          overflow-x: auto;
+          padding-bottom: 0.25rem;
+        }
+        .pd-gallery-thumbs::-webkit-scrollbar {
+          height: 4px;
+        }
+        .pd-gallery-thumbs::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.15);
+          border-radius: 2px;
+        }
+        .pd-thumb {
+          width: 5rem;
+          height: 3.5rem;
+          border-radius: 0.5rem;
+          border: 2px solid transparent;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: border-color 0.2s, opacity 0.2s, transform 0.2s;
+          opacity: 0.5;
+          padding: 0;
+        }
+        .pd-thumb:hover {
+          opacity: 0.8;
+          transform: scale(1.05);
+        }
+        .pd-thumb-active {
+          border-color: rgba(255,255,255,0.6);
+          opacity: 1;
+        }
+        @media (min-width: 768px) {
+          .pd-thumb {
+            width: 7rem;
+            height: 4.5rem;
+          }
+        }
+
         .pd-amenities-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -1292,6 +1909,46 @@ export default function PlaceDetail() {
         @keyframes pd-page-pulse {
           0%, 100% { opacity: 0.7; }
           50% { opacity: 1; }
+        }
+
+        .booking-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          animation: booking-fade-in 0.3s ease-out;
+        }
+
+        @keyframes booking-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .booking-modal {
+          box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(100,140,255,0.06);
+        }
+
+        .booking-success-check {
+          width: 4rem;
+          height: 4rem;
+          border-radius: 9999px;
+          background: linear-gradient(135deg, #22c55e, #4ade80);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto;
+          animation: booking-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes booking-pop {
+          0% { transform: scale(0); opacity: 0; }
+          60% { transform: scale(1.15); }
+          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>

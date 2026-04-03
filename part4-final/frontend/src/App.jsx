@@ -5,6 +5,7 @@ import Places from './pages/Places';
 import CreatePlace from './pages/CreatePlace';
 import Auth from './pages/Auth';
 import Legal from './pages/Legal';
+import InfoPage from './pages/InfoPage';
 import './index.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <Route path="/places/:id" element={<PlaceDetail />} />
       <Route path="/login" element={<Auth />} />
       <Route path="/legal/:page" element={<Legal />} />
+      <Route path="/info/:page" element={<InfoPage />} />
     </Routes>
   );
 }

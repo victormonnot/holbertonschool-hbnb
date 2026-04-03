@@ -28,6 +28,9 @@ class ReviewList(Resource):
         - Cannot review the same place twice
         """
         current_user = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
+        
         review_data = api.payload
         review_data['user_id'] = current_user
 
@@ -36,16 +39,17 @@ class ReviewList(Resource):
         if not place:
             return {"error": "Place not found"}, 404
 
-        # Cannot review your own place
-        if place.owner.id == current_user:
+        # Cannot review your own place (admin bypass)
+        if not is_admin and place.owner_id == current_user:
             return {"error": "You cannot review your own place"}, 400
 
-        # Cannot review the same place twice
-        existing_reviews = facade.get_reviews_by_place(review_data['place_id'])
-        if existing_reviews:
-            for r in existing_reviews:
-                if r.user.id == current_user:
-                    return {"error": "You have already reviewed this place"}, 400
+        # Cannot review the same place twice (admin bypass)
+        if not is_admin:
+            existing_reviews = facade.get_reviews_by_place(review_data['place_id'])
+            if existing_reviews:
+                for r in existing_reviews:
+                    if r.user_id == current_user:
+                        return {"error": "You have already reviewed this place"}, 400
 
         try:
             review = facade.create_review(review_data)
@@ -92,7 +96,7 @@ class ReviewResource(Resource):
             return {"error": "Review not found"}, 404
 
         # Authorization: only the author or an admin
-        if not is_admin and review.user.id != current_user:
+        if not is_admin and review.user_id != current_user:
             return {'error': 'Unauthorized action'}, 403
 
         try:
@@ -116,7 +120,7 @@ class ReviewResource(Resource):
             return {"error": "Review not found"}, 404
 
         # Authorization: only the author or an admin
-        if not is_admin and review.user.id != current_user:
+        if not is_admin and review.user_id != current_user:
             return {'error': 'Unauthorized action'}, 403
 
         success = facade.delete_review(review_id)
