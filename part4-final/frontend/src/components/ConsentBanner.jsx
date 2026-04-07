@@ -43,8 +43,11 @@ export default function CookieConsent() {
           }}
         >
           <div
-            className="liquid-glass-strong"
             style={{
+              background: 'rgba(10, 12, 25, 0.85)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: '1.25rem',
               padding: '1.5rem',
               position: 'relative',
