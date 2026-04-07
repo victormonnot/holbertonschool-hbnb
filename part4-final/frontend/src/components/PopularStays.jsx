@@ -79,35 +79,58 @@ const BG_STARS_STATIC = `
   86vw 590px 2px 0px rgba(255,255,255,0.40)
 `;
 
-const BG_STARS_PULSE = `
-  6vw 110px 2px 0px rgba(255,255,255,0.55),
-  16vw 260px 1px 0px rgba(255,255,255,0.45),
-  25vw 45px 2px 0px rgba(255,255,255,0.60),
-  36vw 340px 1px 0px rgba(255,255,255,0.45),
-  45vw 130px 2px 0px rgba(255,255,255,0.55),
-  55vw 290px 1px 0px rgba(255,255,255,0.45),
-  65vw 70px 2px 0px rgba(255,255,255,0.60),
-  75vw 370px 1px 0px rgba(255,255,255,0.45),
-  85vw 160px 2px 0px rgba(255,255,255,0.55),
-  95vw 270px 1px 0px rgba(255,255,255,0.45),
-  11vw 480px 2px 0px rgba(255,255,255,0.45),
-  38vw 530px 1px 0px rgba(255,255,255,0.55),
-  58vw 500px 2px 0px rgba(255,255,255,0.45),
-  79vw 550px 1px 0px rgba(255,255,255,0.55)
+const BG_STARS_PULSE1 = `
+  6vw 110px 1px 1px rgba(255,255,255,0.8),
+  16vw 260px 1px 1px rgba(255,255,255,0.9),
+  25vw 45px 1px 1px rgba(255,255,255,0.7),
+  36vw 340px 1px 1px rgba(255,255,255,0.8),
+  45vw 130px 1px 1px rgba(255,255,255,0.9),
+  55vw 290px 1px 1px rgba(255,255,255,0.7),
+  65vw 70px 1px 1px rgba(255,255,255,0.8),
+  75vw 370px 1px 1px rgba(255,255,255,0.9),
+  85vw 160px 1px 1px rgba(255,255,255,0.7),
+  95vw 270px 1px 1px rgba(255,255,255,0.8),
+  11vw 480px 1px 1px rgba(255,255,255,0.7),
+  38vw 530px 1px 1px rgba(255,255,255,0.8),
+  58vw 500px 1px 1px rgba(255,255,255,0.9)
+`;
+
+const BG_STARS_PULSE2 = `
+  10vw 95px 1px 1px rgba(255,255,255,0.9),
+  28vw 210px 1px 1px rgba(255,255,255,0.7),
+  43vw 160px 1px 1px rgba(255,255,255,0.8),
+  61vw 320px 1px 1px rgba(255,255,255,0.9),
+  79vw 50px 1px 1px rgba(255,255,255,0.7),
+  3vw 450px 1px 1px rgba(255,255,255,0.8),
+  22vw 570px 1px 1px rgba(255,255,255,0.9),
+  50vw 400px 1px 1px rgba(255,255,255,0.7),
+  72vw 540px 1px 1px rgba(255,255,255,0.8),
+  89vw 480px 1px 1px rgba(255,255,255,0.9)
+`;
+
+const BG_STARS_FAST = `
+  15vw 190px 1px 1px rgba(255,255,255,0.9),
+  47vw 430px 1px 1px rgba(255,255,255,0.8),
+  76vw 280px 1px 1px rgba(255,255,255,0.9),
+  33vw 550px 1px 1px rgba(255,255,255,0.8),
+  63vw 120px 1px 1px rgba(255,255,255,0.9)
 `;
 
 const BG_STARS_BLUE = `
-  9vw 140px 2px 0px rgba(80,130,220,0.55),
-  23vw 310px 2px 0px rgba(60,160,120,0.45),
-  35vw 70px 2px 0px rgba(80,130,220,0.50),
-  48vw 240px 2px 0px rgba(60,160,120,0.40),
-  60vw 380px 2px 0px rgba(80,130,220,0.50),
-  73vw 120px 2px 0px rgba(60,160,120,0.45),
-  86vw 280px 2px 0px rgba(80,130,220,0.55),
-  18vw 450px 2px 0px rgba(60,160,120,0.40),
-  43vw 510px 2px 0px rgba(80,130,220,0.50),
-  66vw 470px 2px 0px rgba(60,160,120,0.45),
-  90vw 540px 2px 0px rgba(80,130,220,0.40)
+  9vw 140px 1px 1px rgba(100,140,255,0.9),
+  23vw 310px 1px 1px rgba(100,140,255,0.8),
+  35vw 70px 1px 1px rgba(100,140,255,0.9),
+  48vw 240px 1px 1px rgba(100,140,255,0.8),
+  60vw 380px 1px 1px rgba(100,140,255,0.9),
+  73vw 120px 1px 1px rgba(100,140,255,0.8),
+  86vw 280px 1px 1px rgba(100,140,255,0.9),
+  18vw 450px 1px 1px rgba(100,140,255,0.7),
+  43vw 510px 1px 1px rgba(100,140,255,0.9),
+  66vw 470px 1px 1px rgba(100,140,255,0.8),
+  90vw 540px 1px 1px rgba(100,140,255,0.7),
+  5vw 580px 1px 1px rgba(100,140,255,0.9),
+  52vw 560px 1px 1px rgba(100,140,255,0.8),
+  81vw 490px 1px 1px rgba(100,140,255,0.7)
 `;
 
 export default function PopularStays() {
@@ -174,38 +197,32 @@ export default function PopularStays() {
             zIndex: 2,
           }}
         />
-        {/* Primary glow — cold blue, top-left */}
+        {/* Primary glow — center top (matching section 2) */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(ellipse 90% 70% at 20% 25%, rgba(30,70,160,0.22) 0%, transparent 60%)',
+              'radial-gradient(ellipse 90% 60% at 50% 30%, rgba(255,255,255,0.08) 0%, transparent 70%)',
           }}
         />
-
-        {/* Tertiary — blue-green blend, center */}
+        {/* Secondary glow — bottom right asymmetry (matching section 2) */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(ellipse at 55% 50%, rgba(25,120,130,0.10) 0%, transparent 45%)',
+              'radial-gradient(ellipse 70% 50% at 80% 75%, rgba(255,255,255,0.04) 0%, transparent 50%)',
           }}
         />
-        {/* Edge glow behind Card 1 */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(ellipse at 25% 50%, rgba(40,90,170,0.14) 0%, transparent 40%)',
-          }}
-        />
-        {/* Star layers */}
+        {/* Star layers — 5 layers matching section 2 */}
         <div className="ps-stars-static" />
-        <div className="ps-stars-pulse" />
+        <div className="ps-stars-pulse1" />
+        <div className="ps-stars-pulse2" />
+        <div className="ps-stars-fast" />
         <div className="ps-stars-blue" />
+        {/* Noise texture */}
+        <div className="ps-noise" />
       </div>
 
       {/* Content */}
@@ -606,45 +623,60 @@ export default function PopularStays() {
         /* Stars — static layer */
         .ps-stars-static {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 1px;
-          height: 1px;
+          top: 0; left: 0;
+          width: 1px; height: 1px;
           background: transparent;
           box-shadow: ${BG_STARS_STATIC};
         }
-
-        /* Stars — slow pulse layer */
-        .ps-stars-pulse {
+        /* Stars — pulse layer 1 */
+        .ps-stars-pulse1 {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 1px;
-          height: 1px;
+          top: 0; left: 0;
+          width: 1px; height: 1px;
           background: transparent;
-          box-shadow: ${BG_STARS_PULSE};
-          animation: ps-twinkle 10s ease-in-out infinite;
+          box-shadow: ${BG_STARS_PULSE1};
+          animation: ps-pulse 8s ease-in-out infinite;
         }
-
-        /* Stars — colored accent layer */
+        /* Stars — pulse layer 2 (offset rhythm) */
+        .ps-stars-pulse2 {
+          position: absolute;
+          top: 0; left: 0;
+          width: 1px; height: 1px;
+          background: transparent;
+          box-shadow: ${BG_STARS_PULSE2};
+          animation: ps-pulse 10s ease-in-out infinite;
+        }
+        /* Stars — fast pulse (few) */
+        .ps-stars-fast {
+          position: absolute;
+          top: 0; left: 0;
+          width: 1px; height: 1px;
+          background: transparent;
+          box-shadow: ${BG_STARS_FAST};
+          animation: ps-pulse 4s ease-in-out infinite;
+        }
+        /* Stars — blue accent */
         .ps-stars-blue {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 1px;
-          height: 1px;
+          top: 0; left: 0;
+          width: 1px; height: 1px;
           background: transparent;
           box-shadow: ${BG_STARS_BLUE};
-          animation: ps-twinkle-slow 12s ease-in-out infinite;
+          animation: ps-pulse 12s ease-in-out infinite;
+        }
+        /* Noise texture */
+        .ps-noise {
+          position: absolute;
+          inset: 0;
+          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          background-repeat: repeat;
+          background-size: 128px 128px;
         }
 
-        @keyframes ps-twinkle {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 1; }
-        }
-        @keyframes ps-twinkle-slow {
+        @keyframes ps-pulse {
           0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.9; }
+          50% { opacity: 1; }
         }
       `}</style>
     </section>

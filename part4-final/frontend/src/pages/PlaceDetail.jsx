@@ -84,7 +84,7 @@ const PLACE_VIDEOS = {
   'habitat europa — sous la glace': '/images/europa.mp4',
   'nébuleuse lounge titan': '/images/titan.mp4',
   'avant-poste vénus cloud9': '/images/venus.mp4',
-  'dôme olympus': '/images/mars.mp4',
+  'dôme olympus — panorama sur mars': '/images/mars.mp4',
 };
 
 function getPlaceGallery(title, fallbackImage) {
@@ -257,6 +257,8 @@ export default function PlaceDetail() {
   const [contactSent, setContactSent] = useState(false);
   const [contactMessage, setContactMessage] = useState('');
 
+  const [recommendations, setRecommendations] = useState([]);
+
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
@@ -351,6 +353,17 @@ export default function PlaceDetail() {
         }
       })
       .catch(() => setLoading(false));
+
+    // Fetch recommendations (3 random other places)
+    fetch('/api/v1/places')
+      .then((r) => r.json())
+      .then((places) => {
+        if (!Array.isArray(places)) return;
+        const others = places.filter((p) => p.id !== id);
+        const shuffled = others.sort(() => 0.5 - Math.random());
+        setRecommendations(shuffled.slice(0, 3));
+      })
+      .catch(() => {});
 
     // Fetch reviews
     fetch(`/api/v1/places/${id}/reviews`)
@@ -1717,6 +1730,135 @@ export default function PlaceDetail() {
             </div>
           </motion.div>
         </div>
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <motion.div
+            {...fadeUp(0.2)}
+            style={{
+              maxWidth: '80rem',
+              margin: '0 auto',
+              padding: '4rem 0 5rem',
+            }}
+            className="pd-container"
+          >
+            <p className="pd-section-label">Destinations similaires</p>
+            <div className="pd-reco-grid">
+              {recommendations.map((rec, i) => {
+                const bg = rec.image_url
+                  ? `url(${rec.image_url}) center/cover no-repeat`
+                  : getGradient(rec.title);
+                return (
+                  <motion.div key={rec.id} {...fadeUp(0.1 + i * 0.1)}>
+                    <Link
+                      to={`/places/${rec.id}`}
+                      style={{ textDecoration: 'none', display: 'block' }}
+                    >
+                      <div
+                        className="pd-reco-card"
+                        style={{
+                          position: 'relative',
+                          borderRadius: '1.25rem',
+                          overflow: 'hidden',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                          transition: 'transform 0.3s, border-color 0.3s',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-4px)';
+                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                        }}
+                      >
+                        {/* Image */}
+                        <div
+                          style={{
+                            aspectRatio: '16/10',
+                            background: bg,
+                            position: 'relative',
+                          }}
+                        >
+                          <div
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              background:
+                                'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)',
+                            }}
+                          />
+                        </div>
+
+                        {/* Info */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            padding: '1.25rem',
+                          }}
+                        >
+                          <h3
+                            style={{
+                              fontFamily: 'var(--font-heading)',
+                              fontSize: '1.125rem',
+                              color: '#fff',
+                              letterSpacing: '-0.5px',
+                              marginBottom: '0.5rem',
+                              textShadow: '0 2px 8px rgba(0,0,0,0.6)',
+                            }}
+                          >
+                            {rec.title}
+                          </h3>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-body)',
+                                fontSize: '0.875rem',
+                                color: 'rgba(255,255,255,0.5)',
+                                fontWeight: 300,
+                              }}
+                            >
+                              {rec.price}€ / nuit
+                            </span>
+                            <span
+                              className="liquid-glass"
+                              style={{
+                                borderRadius: '9999px',
+                                padding: '0.25rem 0.75rem',
+                                fontSize: '0.75rem',
+                                fontFamily: 'var(--font-body)',
+                                color: 'rgba(255,255,255,0.7)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                              }}
+                            >
+                              <Star
+                                size={12}
+                                fill="rgba(255,255,255,0.7)"
+                                stroke="none"
+                              />
+                              Explorer
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
         <Footer />
       </div>
 
@@ -1949,6 +2091,18 @@ export default function PlaceDetail() {
           0% { transform: scale(0); opacity: 0; }
           60% { transform: scale(1.15); }
           100% { transform: scale(1); opacity: 1; }
+        }
+
+        .pd-reco-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        @media (min-width: 640px) {
+          .pd-reco-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+          .pd-reco-grid { grid-template-columns: repeat(3, 1fr); }
         }
       `}</style>
     </div>
