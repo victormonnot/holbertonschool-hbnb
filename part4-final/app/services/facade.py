@@ -90,6 +90,13 @@ class HBnBFacade:
         db.session.commit()
         return place
 
+    def delete_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if not place:
+            return False
+        self.place_repo.delete(place_id)
+        return True
+
     # ====== REVIEW ======
     def create_review(self, data):
         """Create and store a new review."""

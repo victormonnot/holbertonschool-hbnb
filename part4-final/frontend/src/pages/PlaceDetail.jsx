@@ -363,7 +363,7 @@ export default function PlaceDetail() {
         const shuffled = others.sort(() => 0.5 - Math.random());
         setRecommendations(shuffled.slice(0, 3));
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // Fetch reviews
     fetch(`/api/v1/places/${id}/reviews`)
@@ -965,7 +965,9 @@ export default function PlaceDetail() {
                   ) : (
                     <video
                       src={videoUrl}
-                      controls
+                      autoPlay
+                      muted
+                      loop
                       playsInline
                       style={{
                         width: '100%',

@@ -104,7 +104,7 @@ class PlaceResource(Resource):
             return {"error": "Place not found"}, 404
 
         # Ownership check (admin bypass)
-        if not is_admin and place.owner.id != current_user:
+        if not is_admin and place.owner_id != current_user:
             return {'error': 'Unauthorized action'}, 403
 
         try:
@@ -112,6 +112,28 @@ class PlaceResource(Resource):
             return {"message": "Place updated successfully"}, 200
         except ValueError as e:
             return {"error": str(e)}, 400
+
+    @jwt_required()
+    def delete(self, place_id):
+        """
+        Delete a place by ID.
+        Requires JWT. Only the owner or an admin can delete.
+        """
+        current_user = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
+
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        if not is_admin and place.owner_id != current_user:
+            return {'error': 'Unauthorized action'}, 403
+
+        success = facade.delete_place(place_id)
+        if not success:
+            return {"error": "Place not found"}, 404
+        return {"message": "Place deleted successfully"}, 200
 
 
 @api.route("/<place_id>/reviews")
